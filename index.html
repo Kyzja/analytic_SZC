@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Актуальна аналітика СЗЧ</title>
+<title>Актуальна аналітика СЗЧ v29 MONTH COPY</title>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
@@ -258,6 +258,10 @@ body.darkTheme .matrixLink{color:#ffffff!important;}
   <button id="heatmapToggleBtn" onclick="toggleHeatmap()">Сховати Heatmap</button>
   <button onclick="window.print()">Друк A4</button>
   <button onclick="downloadHTML()">Зберегти HTML</button>
+  
+<button onclick="saveToFirebase()">☁ Зберегти в Firebase</button>
+<button onclick="loadFromFirebase()">☁ Завантажити з Firebase</button>
+
 </div>
 <div class="wrap">
   <div class="mobileHint">📱 На телефоні таблиці можна гортати пальцем вліво/вправо. Натискай на рядки підрозділів або причин для деталізації.</div>
@@ -966,4 +970,88 @@ function toggleTheme(){setTheme(document.body.classList.contains('darkTheme')?'l
 document.addEventListener('DOMContentLoaded',()=>{setTheme(localStorage.getItem('szchTheme')==='dark'?'dark':'light');});
 
 </script>
+
+<!-- FIREBASE CLOUD SAVE -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import {
+  getFirestore,
+  collection,
+  addDoc,
+  getDocs
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyASf3gPnDUaA4GbErBQJpuZzWRUHiGrZ8M",
+  authDomain: "analyticszc.firebaseapp.com",
+  projectId: "analyticszc",
+  storageBucket: "analyticszc.firebasestorage.app",
+  messagingSenderId: "942975844676",
+  appId: "1:942975844676:web:526c293468526879e35711",
+  measurementId: "G-6MN2V3DSKM"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+window.saveToFirebase = async function () {
+  try {
+    if (!window.raw || !window.raw.length) {
+      alert("Спочатку імпортуйте Excel файл");
+      return;
+    }
+
+    await addDoc(collection(db, "szc_data"), {
+      created: new Date().toISOString(),
+      data: window.raw
+    });
+
+    alert("✅ Дані успішно збережено у Firebase");
+  } catch (e) {
+    console.error(e);
+    alert("❌ Помилка збереження");
+  }
+};
+
+window.loadFromFirebase = async function () {
+  try {
+    const snap = await getDocs(collection(db, "szc_data"));
+
+    if (snap.empty) {
+      alert("Немає даних у Firebase");
+      return;
+    }
+
+    const docs = [];
+
+    snap.forEach(d => docs.push({
+      id: d.id,
+      ...d.data()
+    }));
+
+    docs.sort((a,b)=>
+      new Date(b.created || 0) - new Date(a.created || 0)
+    );
+
+    const latest = docs[0];
+
+    if (!latest.data || !latest.data.length) {
+      alert("Дані порожні");
+      return;
+    }
+
+    window.raw = latest.data;
+
+    if (typeof render === "function") {
+      render();
+    }
+
+    alert("✅ Дані завантажено з Firebase");
+  } catch (e) {
+    console.error(e);
+    alert("❌ Помилка завантаження");
+  }
+};
+</script>
+
 </body></html>
