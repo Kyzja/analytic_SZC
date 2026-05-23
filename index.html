@@ -247,7 +247,7 @@ body.darkTheme .matrixLink{color:#ffffff!important;}
 </style>
 </head><body>
 <div class="topbar">
-  <b>Аналітика СЗЧ v31</b>
+  <b>Аналітика СЗЧ v32 Firebase Auto</b>
   <input type="file" id="file" accept=".xlsx,.xls,.xlsm" />
   <button id="themeToggleBtn" onclick="toggleTheme()">🌙 Темна тема</button>
   <button onclick="exportPNG()">Вивантажити PNG</button>
@@ -260,7 +260,8 @@ body.darkTheme .matrixLink{color:#ffffff!important;}
   <button onclick="downloadHTML()">Зберегти HTML</button>
   
 <button onclick="saveToFirebase()">☁ Зберегти в Firebase</button>
-<button onclick="loadFromFirebase()">☁ Завантажити з Firebase</button>
+<button onclick="loadFromFirebase(false)">☁ Завантажити з Firebase</button>
+  <span id="cloudStatus" class="hint">☁ Автозбереження</span>
 
 </div>
 <div class="wrap">
@@ -332,7 +333,7 @@ body.darkTheme .matrixLink{color:#ffffff!important;}
 </div>
 
 <script>
-Chart.register(ChartDataLabels); let raw=[], charts=[], modalRows=[], modalContext={};
+Chart.register(ChartDataLabels); var raw=[], charts=[], modalRows=[], modalContext={};
 const COLS={pos:'Підрозділ/посада',rank:'Звання',name:'ПІБ',base:'Підстава',place:'Місце вибуття',date:'Дата вибуття',backDate:'Факт. прибуття',returned:'Повернувся',placeCat:'Категорія місця',unit:'Підрозділ',reason:'Причина',info:'Фрагмент додаткової інформації'};
 function parseDate(v){
   if(!v) return null;
@@ -828,8 +829,43 @@ function exportModalCSV(){
   XLSX.writeFile(wb,'Деталізація_СЗЧ.xlsx');
 }
 function renderDetails(data){let rows=data.slice(0,500).map(r=>[fmt(r._date),r[COLS.unit],r[COLS.rank],r[COLS.name],r[COLS.returned],r[COLS.reason],r[COLS.place],r[COLS.info]]); table('detailTable',[['Дата','Підрозділ','Звання','ПІБ','Повернувся','Причина','Місце вибуття','Додаткова інформація'],...rows]); document.getElementById('rowsInfo').textContent=`Показано ${Math.min(500,data.length)} з ${data.length} рядків.`}
-function loadWorkbook(buf){let wb=XLSX.read(buf,{type:'array',cellDates:false}); let name=wb.SheetNames.find(s=>s.trim().toLowerCase()==='деталізація')||wb.SheetNames[0]; let rows=XLSX.utils.sheet_to_json(wb.Sheets[name],{defval:'',raw:true}); raw=rows.map(r=>({...r,_date:parseDate(r[COLS.date])})).filter(r=>r[COLS.name]||r[COLS.unit]||r[COLS.reason]); fillSelect('unitFilter',raw.map(r=>r[COLS.unit])); fillSelect('reasonFilter',raw.map(r=>r[COLS.reason])); let ds=raw.map(r=>r._date).filter(Boolean).sort((a,b)=>a-b); if(ds.length){dateFrom.value=iso(ds[0]); dateTo.value=iso(todayLocal());} render();}
-file.onchange=e=>{let f=e.target.files[0]; if(!f)return; let fr=new FileReader(); fr.onload=()=>loadWorkbook(fr.result); fr.readAsArrayBuffer(f)}; 
+function normalizeCloudDate(v){
+  if(!v) return null;
+  if(v instanceof Date) return parseDate(v);
+  if(typeof v==='object' && typeof v.seconds==='number'){
+    return new Date(v.seconds*1000);
+  }
+  return parseDate(v);
+}
+function applyLoadedRows(rows){
+  raw=(rows||[]).map(r=>({...r,_date:parseDate(r[COLS.date]) || normalizeCloudDate(r._date)})).filter(r=>r[COLS.name]||r[COLS.unit]||r[COLS.reason]);
+  window.raw=raw;
+  window.filteredData=raw;
+  window.currentData=raw;
+  window.rawData=raw;
+  fillSelect('unitFilter',raw.map(r=>r[COLS.unit]));
+  fillSelect('reasonFilter',raw.map(r=>r[COLS.reason]));
+  let ds=raw.map(r=>r._date).filter(Boolean).sort((a,b)=>a-b);
+  if(ds.length){dateFrom.value=iso(ds[0]); dateTo.value=iso(todayLocal());}
+  render();
+}
+window.applyLoadedRows=applyLoadedRows;
+function loadWorkbook(buf){
+  let wb=XLSX.read(buf,{type:'array',cellDates:false});
+  let name=wb.SheetNames.find(s=>s.trim().toLowerCase()==='деталізація')||wb.SheetNames[0];
+  let rows=XLSX.utils.sheet_to_json(wb.Sheets[name],{defval:'',raw:true});
+  applyLoadedRows(rows);
+}
+file.onchange=e=>{
+  let f=e.target.files[0];
+  if(!f)return;
+  let fr=new FileReader();
+  fr.onload=()=>{
+    loadWorkbook(fr.result);
+    setTimeout(()=>{ if(typeof window.saveToFirebase==='function') window.saveToFirebase(true); },700);
+  };
+  fr.readAsArrayBuffer(f)
+}; 
 ['dateFrom','dateTo'].forEach(id=>{const el=document.getElementById(id); el.addEventListener('input',()=>{render(); updateHeaderPeriod();}); el.addEventListener('change',()=>{render(); updateHeaderPeriod();});});
 ['unitFilter','reasonFilter','search'].forEach(id=>document.getElementById(id).addEventListener('input',render));
 // Страховка: якщо браузер змінив поле дати без події, шапка все одно синхронізується.
@@ -971,6 +1007,7 @@ document.addEventListener('DOMContentLoaded',()=>{setTheme(localStorage.getItem(
 
 </script>
 
+
 <!-- FIREBASE CLOUD SAVE -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
@@ -978,7 +1015,10 @@ import {
   getFirestore,
   collection,
   addDoc,
-  getDocs
+  getDocs,
+  query,
+  orderBy,
+  limit
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -994,74 +1034,89 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-window.saveToFirebase = async function () {
+function setCloudStatus(text){
+  const el=document.getElementById("cloudStatus");
+  if(el) el.textContent=text;
+}
+
+window.saveToFirebase = async function (silent=false) {
   try {
     const dataToSave =
+      window.raw ||
       window.filteredData ||
       window.currentData ||
       window.rawData ||
-      window.raw ||
       [];
 
     if (!dataToSave.length) {
-      alert("Немає даних для збереження");
+      if(!silent) alert("Немає даних для збереження");
+      setCloudStatus("☁ Немає даних");
       return;
     }
 
+    setCloudStatus("☁ Збереження...");
     await addDoc(collection(db, "szc_data"), {
       created: new Date().toISOString(),
+      count: dataToSave.length,
       data: dataToSave
     });
 
-    alert("✅ Дані успішно збережено у Firebase");
+    localStorage.setItem("szc_last_cloud_save", new Date().toISOString());
+    setCloudStatus("☁ Збережено: " + new Date().toLocaleTimeString("uk-UA", {hour:"2-digit", minute:"2-digit"}));
+    if(!silent) alert("✅ Дані успішно збережено у Firebase");
   } catch (e) {
     console.error(e);
-    alert("❌ Помилка збереження");
+    setCloudStatus("☁ Помилка збереження");
+    if(!silent) alert("❌ Помилка збереження у Firebase: " + (e.message || e));
   }
 };
 
-window.loadFromFirebase = async function () {
+window.loadFromFirebase = async function (silent=false) {
   try {
-    const snap = await getDocs(collection(db, "szc_data"));
+    setCloudStatus("☁ Завантаження...");
+    const q = query(collection(db, "szc_data"), orderBy("created", "desc"), limit(1));
+    const snap = await getDocs(q);
 
     if (snap.empty) {
-      alert("Немає даних у Firebase");
+      setCloudStatus("☁ У Firebase ще немає даних");
+      if(!silent) alert("Немає даних у Firebase");
       return;
     }
 
-    const docs = [];
+    let latest = null;
+    snap.forEach(d => latest = { id:d.id, ...d.data() });
 
-    snap.forEach(d => docs.push({
-      id: d.id,
-      ...d.data()
-    }));
-
-    docs.sort((a,b)=>
-      new Date(b.created || 0) - new Date(a.created || 0)
-    );
-
-    const latest = docs[0];
-
-    if (!latest.data || !latest.data.length) {
-      alert("Дані порожні");
+    if (!latest || !latest.data || !latest.data.length) {
+      setCloudStatus("☁ Дані порожні");
+      if(!silent) alert("Дані порожні");
       return;
     }
 
-    window.raw = latest.data;
-    window.filteredData = latest.data;
-    window.currentData = latest.data;
-    window.rawData = latest.data;
-
-    if (typeof render === "function") {
-      render();
+    if (typeof window.applyLoadedRows === "function") {
+      window.applyLoadedRows(latest.data);
+    } else {
+      window.raw = latest.data;
+      if (typeof render === "function") render();
     }
 
-    alert("✅ Дані завантажено з Firebase");
+    setCloudStatus("☁ Завантажено: " + (latest.count || latest.data.length) + " записів");
+    if(!silent) alert("✅ Дані завантажено з Firebase");
   } catch (e) {
     console.error(e);
-    alert("❌ Помилка завантаження");
+    setCloudStatus("☁ Помилка завантаження");
+    if(!silent) alert("❌ Помилка завантаження з Firebase: " + (e.message || e));
   }
 };
+
+// Автоматично підтягує останні дані з Firebase при відкритті сайту.
+window.addEventListener("load", () => {
+  setTimeout(() => {
+    if (!window.raw || !window.raw.length) {
+      window.loadFromFirebase(true);
+    }
+  }, 900);
+});
 </script>
+
 
 </body></html>
