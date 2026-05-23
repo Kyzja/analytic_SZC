@@ -1,0 +1,969 @@
+<!doctype html>
+<html lang="uk">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Актуальна аналітика СЗЧ v29 MONTH COPY</title>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+<style>
+:root{--blue:#083d78;--blue2:#0b5da7;--green:#148b2a;--orange:#f06b00;--red:#e4001b;--line:#bfc9d4;--bg:#f4f8fc;--card:#fff;--text:#081827}
+*{box-sizing:border-box} body{margin:0;font-family:Arial,"Segoe UI",sans-serif;background:linear-gradient(180deg,#eef6ff,#fff);color:var(--text)}
+.topbar{position:sticky;top:0;z-index:10;background:#0b315e;color:white;padding:10px 18px;box-shadow:0 3px 14px #0003;display:flex;gap:10px;align-items:center;flex-wrap:nowrap;overflow-x:auto;white-space:nowrap}.topbar b{font-size:18px;flex:0 0 auto}.topbar input[type=file]{width:210px;max-width:210px;background:#fff;color:#111;flex:0 0 auto}.topbar input,.topbar button,.topbar select{border:0;border-radius:8px;padding:8px 10px}.topbar button{background:#fff;color:#0b315e;font-weight:700;cursor:pointer;flex:0 0 auto}.topbar button:hover{background:#eaf4ff}.hint{font-size:12px;opacity:.88}.wrap{padding:14px;max-width:1900px;margin:auto}.dashboard{background:white;border:1px solid #cfd8e3;border-radius:8px;box-shadow:0 2px 8px #0002;overflow:hidden}.header{text-align:center;padding:10px 10px 6px;background:linear-gradient(180deg,#f8fdff,#eaf4fb);border-bottom:1px solid #cfd8e3}.title{font-size:34px;font-weight:900;color:#103b6d;letter-spacing:1px}.period{font-size:20px;font-weight:800;color:#075ea8;margin-top:2px}.grid{display:grid;grid-template-columns:320px 1.2fr 1.05fr;gap:12px;padding:10px}.stack{display:flex;flex-direction:column;gap:12px}.card{background:#fff;border:1px solid #c4ccd4;border-radius:8px;box-shadow:0 1px 5px #0001;overflow:hidden}.cap{background:linear-gradient(90deg,#06366b,#0a5ea7);color:#fff;text-align:center;font-weight:900;padding:7px;text-transform:uppercase}.cap.green{background:linear-gradient(90deg,#168a2c,#20a43a)}.cap.orange{background:linear-gradient(90deg,#e55b00,#ff7b00)}
+table{border-collapse:collapse;width:100%;font-size:14px} th{background:linear-gradient(90deg,#06366b,#0a4f91);color:white;padding:5px;border:1px solid #8da7c0;text-align:center}td{padding:4px 6px;border:1px solid #d3d9df}tr:nth-child(even) td{background:#fbfdff}.num{text-align:center;font-weight:700}.big{font-size:18px}.greenText{color:#069323}.redText{color:red}.orangeText{color:#f06400}.small{font-size:12px}.barcell{display:flex;align-items:center;gap:8px}.bar{height:12px;background:#0b427d;display:inline-block;min-width:3px}.twocol{display:grid;grid-template-columns:1fr 1fr;gap:12px}.chartbox{height:235px;padding:8px}.chartbox.large{height:390px}.detail{margin-top:12px}.filters{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:12px 0}.filters input,.filters select{border:1px solid #b7c4d2;border-radius:7px;padding:7px;background:white}.pill{padding:8px 10px;background:#eaf4ff;border:1px solid #c7dcf2;border-radius:8px;font-weight:700}.empty{padding:30px;text-align:center;color:#527089}.scroll{overflow:auto}.detail table{min-width:1200px}.foot{font-size:12px;color:#4c5b6b;padding:8px 12px}.wide{grid-column:1/4}.legend{font-size:12px;color:#1c2a39;text-align:center;margin-top:4px}.printOnly{display:none}
+.clickable,.clickable td{cursor:pointer}.clickable:hover td,.clickable:hover{background:#eaf4ff!important;outline:2px solid #5aa3e8}.hintClick{font-size:11px;color:#5d6d80;text-align:center;padding:3px 6px}.modal{position:fixed;inset:0;background:#0008;z-index:999;display:none;align-items:center;justify-content:center;padding:18px}.modal.open{display:flex}.modalBox{width:min(1500px,96vw);max-height:92vh;background:white;border-radius:12px;box-shadow:0 12px 40px #0008;overflow:hidden;border:2px solid #0b4d8f}.modalHead{background:linear-gradient(90deg,#06366b,#0a5ea7);color:white;padding:12px 16px;display:flex;align-items:center;justify-content:space-between;gap:10px}.modalHead b{font-size:20px}.modalHead button{border:0;border-radius:8px;background:white;color:#0b315e;font-weight:900;padding:7px 11px;cursor:pointer}.modalMeta{padding:8px 14px;background:#eef6ff;border-bottom:1px solid #cbd8e6;font-weight:700;color:#103b6d}.modalBody{max-height:72vh;overflow:auto;padding:10px}.modalBody table{min-width:1150px}.modalTools{display:flex;gap:8px;flex-wrap:wrap}.modalTools button{background:#eef6ff;border:1px solid #b5cbe2;border-radius:8px;padding:7px 10px;color:#06366b;font-weight:800;cursor:pointer}.a4Badge{display:none}.compactA4 .wrap{max-width:none;padding:4px}.compactA4 .dashboard{width:100%;border-radius:6px}.compactA4 .header{padding:6px}.compactA4 .title{font-size:28px}.compactA4 .period{font-size:18px}.compactA4 .grid{grid-template-columns:300px 1.18fr 1.02fr;gap:7px;padding:7px}.compactA4 .card{box-shadow:none;border-radius:6px}.compactA4 .cap{padding:5px;font-size:14px}.compactA4 table{font-size:12px}.compactA4 td{padding:3px 5px}.compactA4 th{padding:4px}.compactA4 .chartbox{height:205px}.compactA4 .chartbox.large{height:315px}.compactA4 .topbar,.compactA4 .filters,.compactA4 .detail,.compactA4 .foot{display:none!important}.compactA4 .a4Badge{display:block;text-align:center;font-weight:800;color:#0b4d8f;font-size:11px;padding:2px}.compactA4 .wide{max-height:230px;overflow:hidden}
+@media print{body.compactA4{background:white}.compactA4 .grid{grid-template-columns:300px 1.18fr 1.02fr}.compactA4 .wide{grid-column:1/4}.modal{display:none!important}}
+@media (max-width:1100px){.grid{grid-template-columns:1fr}.wide{grid-column:auto}.twocol{grid-template-columns:1fr}.title{font-size:26px}}
+/* ===== MOBILE RESPONSIVE v7 ===== */
+.mobileHint{display:none}
+@media (max-width: 760px){
+  body{background:#eef6ff;font-size:14px;overflow-x:hidden}
+  .topbar{position:sticky;top:0;padding:8px 10px;gap:7px;align-items:center}
+  .topbar b{font-size:16px;width:100%;line-height:1.1}
+  .topbar input[type=file]{max-width:100%;width:100%;background:#fff;color:#0b315e}
+  .topbar .hint{width:100%;font-size:11px}
+  .topbar button{flex:1 1 calc(50% - 8px);font-size:13px;padding:9px 7px;border-radius:10px;min-height:38px}
+  .wrap{padding:8px;max-width:100%}
+  .filters{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:8px 0;background:#f8fbff;border:1px solid #c7dcf2;border-radius:12px;padding:8px}
+  .filters .pill{grid-column:1/-1;text-align:center;padding:8px}
+  .filters label{display:flex;flex-direction:column;gap:4px;font-weight:700;font-size:13px}
+  .filters input,.filters select,.filters button{width:100%;min-width:0;font-size:14px;padding:9px;border-radius:10px}
+  .filters input[type=search]{grid-column:1/-1;min-width:0!important}
+  .filters button{grid-column:1/-1;background:#fff;border:1px solid #9fb8d4;font-weight:800;color:#0b315e}
+  .dashboard{border-radius:12px;overflow:visible}
+  .header{border-radius:12px 12px 0 0;padding:12px 6px 10px}
+  .title{font-size:24px;line-height:1.05;letter-spacing:.3px}
+  .period{font-size:16px;margin-top:8px}
+  .grid{display:flex;flex-direction:column;gap:10px;padding:8px}
+  .stack{gap:10px}
+  .twocol{display:flex;flex-direction:column;gap:10px}
+  .wide{grid-column:auto}
+  .card{border-radius:10px;box-shadow:0 1px 7px #0002}
+  .cap{font-size:15px;padding:9px 6px;line-height:1.15}
+  table{font-size:13px;min-width:0}
+  th{font-size:12px;padding:6px 4px}
+  td{padding:6px 6px;vertical-align:middle}
+  .big{font-size:16px}
+  .chartbox{height:260px;padding:8px;overflow:hidden}
+  .chartbox.large{height:340px}
+  #unitTable,#monthTable,#statTable,#catTable,#weekNow,#weekPrev,#unitWeekNow,#unitWeekPrev{min-width:100%}
+  .scroll{overflow-x:auto;-webkit-overflow-scrolling:touch;max-width:100%}
+  .detail{margin-top:10px;border-radius:10px}
+  .detail table{min-width:900px}
+  #matrixTable{min-width:980px}
+  .modal{padding:8px;align-items:flex-end}
+  .modalBox{width:100vw;max-height:92vh;border-radius:14px 14px 0 0;border-width:1px}
+  .modalHead{padding:10px;align-items:flex-start;flex-direction:column}
+  .modalHead b{font-size:17px;line-height:1.15}
+  .modalTools{width:100%;display:grid;grid-template-columns:1fr 1fr}
+  .modalTools button{width:100%;padding:10px;font-size:13px}
+  .modalMeta{font-size:13px;padding:8px 10px}
+  .modalBody{padding:8px;max-height:70vh;overflow:auto;-webkit-overflow-scrolling:touch}
+  .modalBody table{min-width:900px;font-size:12px}
+  .mobileHint{display:block;background:#fff8df;border:1px solid #e2c45c;color:#5b4700;border-radius:10px;padding:8px 10px;margin:8px 0;font-size:13px;font-weight:700;text-align:center}
+}
+@media (max-width: 430px){
+  .topbar button{flex-basis:100%}
+  .filters{grid-template-columns:1fr}
+  .title{font-size:21px}
+  .period{font-size:15px}
+  .chartbox{height:230px}
+  .chartbox.large{height:300px}
+  table{font-size:12px}
+}
+
+/* ===== WOW ADDITIONS v9: KPI + HEATMAP + ANIMATIONS ===== */
+.kpiGrid{grid-column:1/4;display:grid;grid-template-columns:repeat(5,1fr);gap:10px;animation:fadeUp .45s ease both}
+.kpiCard{background:linear-gradient(180deg,#ffffff,#f1f7ff);border:1px solid #bed0e4;border-radius:12px;padding:11px 12px;box-shadow:0 3px 10px #0001;position:relative;overflow:hidden}
+.kpiCard:before{content:"";position:absolute;left:0;top:0;bottom:0;width:5px;background:#0b5da7}.kpiCard.warn:before{background:#f06b00}.kpiCard.bad:before{background:#e4001b}.kpiCard.good:before{background:#148b2a}
+.kpiLabel{font-size:12px;color:#516070;font-weight:800;text-transform:uppercase}.kpiValue{font-size:25px;font-weight:950;color:#073b73;line-height:1.1;margin-top:3px}.kpiSub{font-size:12px;color:#31475d;margin-top:4px}.trendUp{color:#e4001b;font-weight:900}.trendDown{color:#148b2a;font-weight:900}.trendFlat{color:#516070;font-weight:900}
+.insightBox{padding:10px 12px;line-height:1.45}.insightBox b{color:#073b73}.insightBox .risk{font-weight:900;color:#e4001b}.insightBox ul{margin:6px 0 0 18px;padding:0}
+.heatmapWrap{padding:10px 12px;overflow:auto}.heatmapOff #heatmapCard{display:none!important}.heatmapGrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(82px,1fr));gap:7px}.heatDay{border:1px solid #ccd8e5;border-radius:9px;min-height:54px;padding:6px;background:#f7fbff;cursor:pointer;transition:.18s transform,.18s box-shadow}.heatDay:hover{transform:translateY(-2px);box-shadow:0 5px 14px #0002;outline:2px solid #5aa3e8}.heatDate{font-size:11px;color:#35506b;font-weight:800}.heatCount{font-size:20px;font-weight:950;color:#073b73}.heat0{background:#f8fbff}.heat1{background:#eaf7ee}.heat2{background:#fff5df}.heat3{background:#ffe4c8}.heat4{background:#ffd5d5}.heat5{background:#ffb6b6}
+.card{animation:fadeUp .35s ease both}.modalBox{animation:modalPop .22s ease both}@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}@keyframes modalPop{from{opacity:0;transform:scale(.97) translateY(8px)}to{opacity:1;transform:none}}
+.aiPanel{display:none;padding:12px 14px;background:#f8fbff;border-bottom:1px solid #cbd8e6;color:#10253c}.aiPanel.open{display:block}.aiPanel h3{margin:0 0 6px;color:#073b73}.aiPanel ul{margin:6px 0 0 18px;padding:0}.pulse{animation:pulse .8s ease}@keyframes pulse{0%{box-shadow:0 0 0 0 #0b5da755}100%{box-shadow:0 0 0 12px #0b5da700}}
+@media(max-width:1100px){.kpiGrid{grid-column:auto;grid-template-columns:repeat(2,1fr)}}@media(max-width:760px){.kpiGrid{grid-template-columns:1fr}.kpiValue{font-size:22px}.heatmapGrid{grid-template-columns:repeat(2,1fr)}}
+.compactA4 .kpiGrid{grid-template-columns:repeat(5,1fr);gap:6px}.compactA4 .kpiCard{padding:6px}.compactA4 .kpiValue{font-size:18px}.compactA4 .kpiSub,.compactA4 .kpiLabel{font-size:10px}.compactA4 .heatmapWrap{padding:6px}.compactA4 .heatmapGrid{grid-template-columns:repeat(10,1fr);gap:3px}.compactA4 .heatDay{min-height:34px;padding:3px}.compactA4 .heatDate{font-size:8px}.compactA4 .heatCount{font-size:13px}
+
+@media print{.topbar,.detail,.filters,.foot{display:none!important}.wrap{padding:0}.dashboard{box-shadow:none;border:0}.grid{gap:6px;padding:6px}.card{break-inside:avoid}.title{font-size:28px}@page{size:A4 landscape;margin:6mm}}
+/* ===== HIGH QUALITY EXPORT v11: NO FOG / SHARP EXPORT ===== */
+.exportMode{background:white!important;overflow:visible!important}
+.exportMode .topbar,.exportMode .filters,.exportMode .mobileHint,.exportMode .foot{display:none!important}
+.exportMode .wrap{max-width:none!important;width:1600px!important;padding:0!important;margin:0!important}
+.exportMode .dashboard{width:1600px!important;border-radius:0!important;box-shadow:none!important;overflow:visible!important}
+.exportMode .grid{grid-template-columns:320px 1.2fr 1.05fr!important}
+.exportMode .wide{grid-column:1/4!important}
+.exportMode .twocol{grid-template-columns:1fr 1fr!important}
+.exportMode .chartbox{height:235px!important}
+.exportMode .chartbox.large{height:390px!important}
+.exportMode table{font-size:14px!important}
+.exportMode .heatmapGrid{grid-template-columns:repeat(14,1fr)!important}
+.exportMode .heatDay{min-height:44px!important}
+.exportMode *{animation:none!important;transition:none!important;filter:none!important;text-shadow:none!important;box-shadow:none!important}
+.exportMode .card,.exportMode .kpiGrid,.exportMode .modalBox,.exportMode .kpiCard,.exportMode table,.exportMode tr,.exportMode td,.exportMode th,.exportMode canvas,.exportMode .header,.exportMode .cap{opacity:1!important;transform:none!important}
+.exportMode .header{background:#ffffff!important}
+.exportMode .cap{background:#07508f!important;color:#ffffff!important}
+.exportMode .cap.green{background:#168a2c!important}.exportMode .cap.orange{background:#f06b00!important}
+.exportMode body,.exportMode .dashboard,.exportMode .card{background:#ffffff!important}
+.exportMode table,.exportMode td,.exportMode th{color:#000!important}
+.exportMode .title,.exportMode .period{color:#073b73!important}
+
+
+/* ===== TOPBAR v13: усі кнопки в один ряд ===== */
+@media (min-width: 761px){
+  .topbar{flex-wrap:nowrap!important;overflow-x:auto!important;white-space:nowrap!important;}
+  .topbar button{padding:8px 12px!important;font-size:14px!important;}
+  .topbar input[type=file]{width:205px!important;max-width:205px!important;}
+}
+
+/* ===== v17: дні тижня знизу під графіком ===== */
+.weekCompareGrid{display:grid;grid-template-columns:1fr;gap:8px;padding:8px;align-items:stretch}
+.weekCompareGrid .chartbox{height:245px!important;padding:4px}
+.weekdayMini{border-top:1px solid #cfd8e3;padding-top:8px;display:block}
+.weekdayMiniTitle{background:linear-gradient(90deg,#06366b,#0a5ea7);color:#fff;text-align:center;font-weight:900;border-radius:6px;padding:6px;text-transform:uppercase;font-size:13px;margin-bottom:6px}
+.weekdayBest{background:#fff3e0;border:1px solid #ffc77b;border-radius:8px;padding:8px;text-align:center;color:#073b73;font-weight:900;margin-bottom:6px}
+.weekdayBest b{font-size:20px;color:#e4001b}
+#weekdayDashTable{width:100%;table-layout:fixed}
+#weekdayDashTable td,#weekdayDashTable th{font-size:12px;padding:4px}
+#weekdayDashTable .barcell{height:13px}
+.compactA4 .weekCompareGrid{grid-template-columns:1fr;gap:4px;padding:4px}.compactA4 .weekCompareGrid .chartbox{height:190px!important}.compactA4 .weekdayMiniTitle{font-size:10px;padding:4px}.compactA4 .weekdayBest{font-size:10px;padding:4px}.compactA4 .weekdayBest b{font-size:14px}#weekdayDashTable .clickable{cursor:pointer}
+
+
+.barcell{height:16px;background:#edf3f9;border-radius:999px;overflow:hidden;border:1px solid #cbd7e4}.barcell span{display:block;height:100%;background:#0b5da7;border-radius:999px}
+
+/* ===== v19: читабельні відсотки у таблиці категорій ===== */
+.pctWrap{display:flex;align-items:center;gap:8px;width:100%;}
+.pctText{min-width:52px;text-align:right;font-weight:900;color:#0b315e;background:transparent!important;}
+.pctTrack{flex:1;height:12px;background:#edf3f9;border:1px solid #cbd7e4;border-radius:999px;overflow:hidden;}
+.pctFill{display:block;height:100%;background:#0b5da7;border-radius:999px;}
+#catTable .barcell{height:auto;background:transparent;border:0;border-radius:0;overflow:visible;}
+#catTable .barcell span{display:inline;height:auto;background:transparent;border-radius:0;}
+
+
+/* ===== v21: білий текст у синіх заголовках таблиць/блоків ===== */
+th, .cap, .weekdayMiniTitle { color:#ffffff !important; }
+#statTable th, #unitTable th, #monthTable th, #catTable th, #weekNow th, #weekPrev th, #unitWeekNow th, #unitWeekPrev th, #matrixTable th, #weekdayDashTable th, #detailTable th, #modalTable th { color:#ffffff !important; text-shadow:none !important; }
+#statTable th *, #unitTable th *, #monthTable th *, #catTable th *, #weekNow th *, #weekPrev th *, #unitWeekNow th *, #unitWeekPrev th *, #matrixTable th *, #weekdayDashTable th *, #detailTable th *, #modalTable th * { color:#ffffff !important; }
+.exportMode th, .exportMode .cap, .exportMode .weekdayMiniTitle { color:#ffffff !important; }
+.exportMode th * { color:#ffffff !important; }
+
+
+/* ===== v22: прогноз СЗЧ у спливаючому вікні ===== */
+.forecastGrid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:12px}
+.forecastCard{background:linear-gradient(180deg,#f8fbff,#eef6ff);border:1px solid #bcd1e8;border-radius:10px;padding:10px;box-shadow:0 2px 8px #0001}
+.forecastCard .label{font-size:12px;text-transform:uppercase;color:#516070;font-weight:900}
+.forecastCard .value{font-size:26px;font-weight:950;color:#073b73;margin-top:3px}.forecastCard.bad .value{color:#e4001b}.forecastCard.warn .value{color:#f06b00}.forecastCard.good .value{color:#148b2a}
+.riskPill{display:inline-block;border-radius:999px;padding:3px 8px;font-weight:900}.riskLow{background:#eaf7ee;color:#148b2a}.riskMid{background:#fff3d9;color:#a35a00}.riskHigh{background:#ffe1e1;color:#e4001b}
+.forecastNote{background:#fff8df;border:1px solid #e2c45c;border-radius:9px;padding:9px 11px;margin:8px 0;color:#4d3b00;font-weight:700}
+@media(max-width:760px){.forecastGrid{grid-template-columns:1fr}.forecastCard .value{font-size:22px}}
+
+
+/* ===== v23: адаптивне спливаюче вікно прогнозу, щоб нічого не обрізалось ===== */
+.modal{padding:10px!important;align-items:center!important;}
+.modalBox{height:90vh!important;max-height:90vh!important;display:flex!important;flex-direction:column!important;overflow:hidden!important;}
+.modalHead{flex:0 0 auto!important;position:sticky!important;top:0!important;z-index:20!important;}
+.modalMeta{flex:0 0 auto!important;}
+.aiPanel{flex:0 0 auto!important;max-height:18vh!important;overflow:auto!important;}
+.modalBody{flex:1 1 auto!important;min-height:0!important;max-height:none!important;overflow:auto!important;padding:8px 10px!important;}
+#forecastContent{min-width:980px;}
+.forecastTableWrap{overflow:auto;max-height:none;border:1px solid #d3d9df;border-radius:8px;margin-top:8px;}
+.forecastTableWrap table{min-width:820px!important;}
+.forecastGrid{grid-template-columns:repeat(4,minmax(180px,1fr))!important;gap:8px!important;margin-bottom:8px!important;}
+.forecastCard{padding:8px!important;}
+.forecastCard .value{font-size:22px!important;}
+.forecastNote{margin:6px 0!important;padding:7px 10px!important;}
+@media(max-width:760px){
+  .modal{align-items:flex-end!important;padding:6px!important;}
+  .modalBox{height:92vh!important;max-height:92vh!important;width:100vw!important;}
+  .aiPanel{max-height:22vh!important;}
+  #forecastContent{min-width:760px;}
+  .forecastGrid{grid-template-columns:1fr 1fr!important;}
+}
+
+
+/* ===== v27: перемикач світла / темна тема ===== */
+body.darkTheme{background:linear-gradient(180deg,#07182d,#0b2038)!important;color:#eaf4ff!important;}
+body.darkTheme .wrap{background:transparent!important;}
+body.darkTheme .dashboard,
+body.darkTheme .card,
+body.darkTheme .modalBox{background:#0d2744!important;border-color:#35618e!important;color:#eaf4ff!important;box-shadow:0 2px 12px #0008!important;}
+body.darkTheme .header{background:linear-gradient(180deg,#0d3157,#0b2542)!important;border-bottom-color:#35618e!important;}
+body.darkTheme .title{color:#f4f9ff!important;}
+body.darkTheme .period{color:#8fd0ff!important;}
+body.darkTheme .filters{background:#0b2038!important;border-color:#315d88!important;color:#eaf4ff!important;}
+body.darkTheme .filters input,
+body.darkTheme .filters select,
+body.darkTheme .filters button{background:#102f50!important;color:#ffffff!important;border-color:#4d79a8!important;}
+body.darkTheme .pill{background:#102f50!important;border-color:#4d79a8!important;color:#ffffff!important;}
+body.darkTheme td{background:#0f2b49!important;color:#f1f7ff!important;border-color:#375f88!important;}
+body.darkTheme tr:nth-child(even) td{background:#123354!important;}
+body.darkTheme th,
+body.darkTheme .cap,
+body.darkTheme .weekdayMiniTitle{background:linear-gradient(90deg,#082c54,#0a65b8)!important;color:#ffffff!important;border-color:#5b84ac!important;}
+body.darkTheme .cap.green{background:linear-gradient(90deg,#0f7a29,#18a83b)!important;}
+body.darkTheme .cap.orange{background:linear-gradient(90deg,#c95500,#ff7b00)!important;}
+body.darkTheme .kpiCard{background:linear-gradient(180deg,#0e2b4b,#102f50)!important;border-color:#42719f!important;color:#eaf4ff!important;}
+body.darkTheme .kpiLabel{color:#b8d7f2!important;}
+body.darkTheme .kpiValue{color:#ffffff!important;}
+body.darkTheme .kpiSub{color:#d7e9fa!important;}
+body.darkTheme .pctText{color:#ffffff!important;}
+body.darkTheme .pctTrack,
+body.darkTheme .barcell{background:#092039!important;border-color:#4b75a0!important;}
+body.darkTheme .heatDay{background:#102f50!important;border-color:#4b75a0!important;color:#ffffff!important;}
+body.darkTheme .heatDate{color:#d1e8ff!important;}
+body.darkTheme .heatCount{color:#ffffff!important;}
+body.darkTheme .heat0{background:#0c253f!important;}
+body.darkTheme .heat1{background:#103b3a!important;}
+body.darkTheme .heat2{background:#574414!important;}
+body.darkTheme .heat3{background:#70410f!important;}
+body.darkTheme .heat4{background:#74282e!important;}
+body.darkTheme .heat5{background:#931d2a!important;}
+body.darkTheme .detail,
+body.darkTheme .scroll{background:#0d2744!important;}
+body.darkTheme .modal{background:#000b!important;}
+body.darkTheme .modalMeta,
+body.darkTheme .aiPanel{background:#102f50!important;color:#ffffff!important;border-color:#426d98!important;}
+body.darkTheme .modalHead{background:linear-gradient(90deg,#06294f,#0b65b8)!important;color:#ffffff!important;}
+body.darkTheme .modalHead button,
+body.darkTheme .modalTools button{background:#eaf4ff!important;color:#0b315e!important;}
+body.darkTheme .forecastCard{background:linear-gradient(180deg,#102f50,#0d2744)!important;border-color:#42719f!important;color:#ffffff!important;}
+body.darkTheme .forecastNote{background:#3d320d!important;border-color:#9c7e22!important;color:#fff5c9!important;}
+body.darkTheme .riskLow{background:#113d24!important;color:#80ff9f!important;}
+body.darkTheme .riskMid{background:#574111!important;color:#ffd37a!important;}
+body.darkTheme .riskHigh{background:#5e1b22!important;color:#ffb1b8!important;}
+body.darkTheme input::placeholder{color:#b8d7f2!important;}
+body.darkTheme .clickable:hover td{background:#174e82!important;}
+
+
+/* ===== v31: клікабельні KPI/картки/матриця ===== */
+.kpiCard{cursor:pointer;}
+.kpiCard:hover{outline:2px solid #5aa3e8;transform:translateY(-1px);}
+.matrixLink{display:inline-block;min-width:22px;font-weight:900;color:#073b73;cursor:pointer;}
+.matrixLink:hover{text-decoration:underline;}
+body.darkTheme .matrixLink{color:#ffffff!important;}
+
+</style>
+</head><body>
+<div class="topbar">
+  <b>Аналітика СЗЧ v31</b>
+  <input type="file" id="file" accept=".xlsx,.xls,.xlsm" />
+  <button id="themeToggleBtn" onclick="toggleTheme()">🌙 Темна тема</button>
+  <button onclick="exportPNG()">Вивантажити PNG</button>
+  <button onclick="exportPDF()">Вивантажити PDF</button>
+  <button onclick="printA4Report()">Гарний A4-звіт</button>
+  <button onclick="openWeekdayAnalysis()">Дні тижня</button>
+  <button onclick="openForecastModal()">Прогноз СЗЧ</button>
+  <button id="heatmapToggleBtn" onclick="toggleHeatmap()">Сховати Heatmap</button>
+  <button onclick="window.print()">Друк A4</button>
+  <button onclick="downloadHTML()">Зберегти HTML</button>
+</div>
+<div class="wrap">
+  <div class="mobileHint">📱 На телефоні таблиці можна гортати пальцем вліво/вправо. Натискай на рядки підрозділів або причин для деталізації.</div>
+  <div class="filters">
+    <span class="pill">Фільтри</span>
+    <label>З <input type="date" id="dateFrom"></label>
+    <label>По <input type="date" id="dateTo"></label>
+    <label>Підрозділ <select id="unitFilter"><option value="">Всі</option></select></label>
+    <label>Причина <select id="reasonFilter"><option value="">Всі</option></select></label>
+    <input type="search" id="search" placeholder="Пошук по деталізації..." style="min-width:260px">
+    <button onclick="resetFilters()">Скинути</button>
+  </div>
+  <section id="dash" class="dashboard">
+    <div class="header"><div class="title">АКТУАЛЬНА АНАЛІТИКА СЗЧ</div><div class="period" id="periodLabel">📅 Імпортуйте Excel-файл</div></div>
+    <div id="empty" class="empty">Натисніть «Вибрати файл» і завантажте Excel з вкладкою <b>Деталізація</b>.</div>
+    <div id="content" style="display:none" class="grid">
+      <div class="kpiGrid" id="kpiCards"></div>
+      <div class="stack">
+        <div class="card"><div class="cap">Загальна статистика</div><table id="statTable"></table></div>
+        <div class="card"><div class="cap">Не повернулися за підрозділами (загалом)</div><table id="unitTable"></table></div>
+        <div class="card"><div class="cap">Динаміка за місяцями</div><table id="monthTable"></table></div>
+      </div>
+      <div class="stack">
+        <div class="card"><div class="cap">Звідки СЗЧ (загалом)</div><table id="catTable"></table></div>
+        <div class="twocol">
+          <div class="card"><div class="cap green">Поточний тиждень</div><table id="weekNow"></table></div>
+          <div class="card"><div class="cap orange">Попередній тиждень</div><table id="weekPrev"></table></div>
+        </div>
+        <div class="twocol">
+          <div class="card"><table id="unitWeekNow"></table></div>
+          <div class="card"><table id="unitWeekPrev"></table></div>
+        </div>
+      </div>
+      <div class="stack">
+        <div class="card"><div class="chartbox"><canvas id="pie"></canvas></div></div>
+        <div class="card"><div class="cap">Порівняння тижнів + дні тижня</div>
+          <div class="weekCompareGrid">
+            <div class="chartbox"><canvas id="bar"></canvas></div>
+            <div class="weekdayMini">
+              <div class="weekdayMiniTitle">СЗЧ по днях тижня</div>
+              <table id="weekdayDashTable"></table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card wide" id="heatmapCard"><div class="cap">Heatmap по днях</div><div class="heatmapWrap"><div class="heatmapGrid" id="heatmapGrid"></div></div></div>
+      <div class="card wide"><div class="cap">Причини СЗЧ по підрозділах (загалом за період)</div><div class="scroll"><table id="matrixTable"></table></div></div>
+    </div>
+  </section>
+  <section class="detail card"><div class="cap">Деталізація / пошук</div><div class="scroll"><table id="detailTable"></table></div><div class="foot" id="rowsInfo"></div></section>
+</div>
+<div id="detailModal" class="modal" onclick="if(event.target===this)closeDetailModal()">
+  <div class="modalBox">
+    <div class="modalHead">
+      <b id="modalTitle">Деталізація</b>
+      <div class="modalTools">
+        <button onclick="toggleAIInsights()">AI-висновки</button>
+        <button onclick="copyModalList()">Копіювати список</button>
+        <button onclick="exportModalCSV()">Вивантажити Excel</button>
+        <button onclick="closeDetailModal()">Закрити ✕</button>
+      </div>
+    </div>
+    <div class="modalMeta" id="modalMeta"></div>
+    <div class="aiPanel" id="aiPanel"></div>
+    <div class="modalBody"><table id="modalTable"></table></div>
+  </div>
+</div>
+
+<script>
+Chart.register(ChartDataLabels); let raw=[], charts=[], modalRows=[], modalContext={};
+const COLS={pos:'Підрозділ/посада',rank:'Звання',name:'ПІБ',base:'Підстава',place:'Місце вибуття',date:'Дата вибуття',backDate:'Факт. прибуття',returned:'Повернувся',placeCat:'Категорія місця',unit:'Підрозділ',reason:'Причина',info:'Фрагмент додаткової інформації'};
+function parseDate(v){
+  if(!v) return null;
+  // Excel часто віддає дату як Date зі зсувом часу. Нормалізуємо до чистої календарної дати.
+  if(v instanceof Date){
+    if(isNaN(v)) return null;
+    let d=new Date(v.getFullYear(),v.getMonth(),v.getDate());
+    // Якщо XLSX через timezone віддав попередній день о 21:00/22:00/23:00 — це фактично дата наступного дня.
+    if(v.getHours()>=12) d.setDate(d.getDate()+1);
+    d.setHours(0,0,0,0);
+    return d;
+  }
+  // Excel serial date: рахуємо через UTC і повертаємо локальну дату без зсуву на -1 день.
+  if(typeof v==='number'){
+    const whole=Math.floor(v);
+    const utc=new Date(Date.UTC(1899,11,30)+whole*86400000);
+    return new Date(utc.getUTCFullYear(),utc.getUTCMonth(),utc.getUTCDate());
+  }
+  let s=String(v).trim();
+  let m=s.match(/(\d{1,2})[.\/-](\d{1,2})[.\/-](\d{4})/);
+  if(m) return new Date(+m[3],+m[2]-1,+m[1]);
+  m=s.match(/(\d{4})-(\d{1,2})-(\d{1,2})/);
+  if(m) return new Date(+m[1],+m[2]-1,+m[3]);
+  return null;
+}
+function fmt(d){return d?d.toLocaleDateString('uk-UA'):''}
+function iso(d){
+  if(!d) return '';
+  const y=d.getFullYear();
+  const m=String(d.getMonth()+1).padStart(2,'0');
+  const day=String(d.getDate()).padStart(2,'0');
+  return `${y}-${m}-${day}`;
+}
+function todayLocal(){
+  const d=new Date();
+  d.setHours(0,0,0,0);
+  return d;
+}
+function endOfDay(d){
+  const x=new Date(d);
+  x.setHours(23,59,59,999);
+  return x;
+}
+function getWeekReferenceDate(){
+  // Тижневі блоки рахуються від дати "По". За замовчуванням це сьогодні.
+  const to=parseDate(document.getElementById('dateTo')?.value);
+  const ref=to||todayLocal();
+  ref.setHours(0,0,0,0);
+  return ref;
+}
+function fmtInputDate(id){
+  const el=document.getElementById(id);
+  if(!el) return '';
+  let v=String(el.value||'').trim();
+  // input[type=date] internally stores YYYY-MM-DD even when screen shows DD.MM.YYYY
+  let m=v.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if(m) return `${m[3]}.${m[2]}.${m[1]}`;
+  m=v.match(/^(\d{1,2})[.\/-](\d{1,2})[.\/-](\d{4})$/);
+  if(m) return `${String(m[1]).padStart(2,'0')}.${String(m[2]).padStart(2,'0')}.${m[3]}`;
+  const d=parseDate(v);
+  return d ? fmt(d) : v;
+}
+function updateHeaderPeriod(){
+  const from = fmtInputDate('dateFrom');
+  const to = fmtInputDate('dateTo');
+  const el = document.getElementById('periodLabel');
+  if(el && (from || to)) el.textContent = `📅 ${from || '—'} – ${to || '—'}`;
+}
+function norm(s){return String(s??'').trim()} function isNo(r){return norm(r[COLS.returned]).toLowerCase()!=='так'}
+function group(arr,key){let o={}; arr.forEach(r=>{let k=typeof key==='function'?key(r):norm(r[key])||'Інше/не визначено'; o[k]=(o[k]||0)+1}); return o}
+function sortObj(o){return Object.entries(o).sort((a,b)=>b[1]-a[1]||a[0].localeCompare(b[0],'uk'))}
+function sum(o){return Object.values(o).reduce((a,b)=>a+b,0)}
+function byDateRange(arr,from,to){return arr.filter(r=>{let d=r._date; return d&&(!from||d>=from)&&(!to||d<=to)})}
+function weekStart(d){let x=new Date(d); let day=(x.getDay()+6)%7; x.setDate(x.getDate()-day); x.setHours(0,0,0,0); return x} function addDays(d,n){let x=new Date(d); x.setDate(x.getDate()+n); return x}
+function table(id, rows){document.getElementById(id).innerHTML=rows.map((r,i)=>'<tr>'+r.map(c=>i==0?`<th>${c}</th>`:`<td>${c}</td>`).join('')+'</tr>').join(''); wireClicks(document.getElementById(id));}
+function escHtml(s){return String(s??'').replace(/[&<>"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;'}[m]||m));}
+function escAttr(s){return escHtml(s).replace(/'/g,'&#39;');}
+function resetModalBody(){ const b=document.querySelector('.modalBody'); if(b) b.innerHTML='<table id="modalTable"></table>'; }
+function wireClicks(root){
+  if(!root) return;
+  root.querySelectorAll('.open-link').forEach(el=>{
+    const tr = el.closest('tr');
+    const kind = el.dataset.kind;
+    const value = el.dataset.value;
+    const scope = el.dataset.scope || 'all';
+    const open = (ev)=>{ ev.stopPropagation(); openDetailModal(kind, value, scope); };
+    el.onclick = open;
+    if(tr){
+      tr.classList.add('clickable');
+      tr.title = 'Натисніть, щоб відкрити деталізацію по людях';
+      tr.onclick = open; // тепер клікається весь рядок: і назва, і кількість, і порожнє місце в рядку
+    }
+  });
+}
+function fillSelect(id, values){let el=document.getElementById(id), cur=el.value; el.innerHTML='<option value="">Всі</option>'+[...new Set(values.filter(Boolean))].sort((a,b)=>a.localeCompare(b,'uk')).map(v=>`<option>${v}</option>`).join(''); el.value=cur}
+function applyFilters(){let from=parseDate(document.getElementById('dateFrom').value), to=parseDate(document.getElementById('dateTo').value); if(to) to.setHours(23,59,59,999); let unit=document.getElementById('unitFilter').value, reason=document.getElementById('reasonFilter').value, q=norm(document.getElementById('search').value).toLowerCase(); return raw.filter(r=>(!from||r._date>=from)&&(!to||r._date<=to)&&(!unit||r[COLS.unit]===unit)&&(!reason||r[COLS.reason]===reason)&&(!q||JSON.stringify(r).toLowerCase().includes(q)));}
+function render(){let data=applyFilters(); document.getElementById('empty').style.display='none'; document.getElementById('content').style.display='grid'; if(!data.length){document.getElementById('periodLabel').textContent='Немає даних за фільтрами'; return}
+let dates=data.map(r=>r._date).filter(Boolean).sort((a,b)=>a-b), min=dates[0], max=dates[dates.length-1];
+let fFrom=parseDate(document.getElementById('dateFrom').value), fTo=parseDate(document.getElementById('dateTo').value);
+// У шапці показуємо саме обраний період фільтра, щоб дата збігалася з полями "З" і "По".
+// Якщо фільтр дати очищений — показуємо фактичний мін/макс по відфільтрованих даних.
+const headerFrom = fmtInputDate('dateFrom') || fmt(min);
+const headerTo = fmtInputDate('dateTo') || fmt(max);
+document.getElementById('periodLabel').textContent = `📅 ${headerFrom} – ${headerTo}`;
+updateHeaderPeriod();
+let no=data.filter(isNo), ret=data.length-no.length; table('statTable', [['Показник','Кількість'],['<span class="open-link" data-kind="allData" data-value="all">Загальна кількість</span>',`<span class="num big open-link" data-kind="allData" data-value="all">${data.length}</span>`],['<span class="open-link" data-kind="returned" data-value="yes">Повернулися</span>',`<span class="num big greenText open-link" data-kind="returned" data-value="yes">${ret}</span>`],['<span class="open-link" data-kind="allNo" data-value="no">Не повернулися</span>',`<span class="num big redText open-link" data-kind="allNo" data-value="no">${no.length}</span>`]]);
+let units=sortObj(group(no,COLS.unit)); table('unitTable',[['Підрозділ','Кількість'],...units.map(([k,v])=>[`<span class="open-link" data-kind="unit" data-value="${escAttr(k)}">${k}</span>`,`<span class="num">${v}</span>`])]);
+let monthMap={};
+data.forEach(r=>{
+  if(!r._date){ monthMap['9999-99|Без дати']=(monthMap['9999-99|Без дати']||0)+1; return; }
+  const y=r._date.getFullYear();
+  const m=String(r._date.getMonth()+1).padStart(2,'0');
+  const label=r._date.toLocaleDateString('uk-UA',{month:'long',year:'numeric'});
+  const key=`${y}-${m}|${label}`;
+  monthMap[key]=(monthMap[key]||0)+1;
+});
+let months=Object.entries(monthMap).sort((a,b)=>a[0].localeCompare(b[0])).map(([k,v])=>{const parts=k.split('|'); return [parts[0], parts[1]||parts[0], v];});
+table('monthTable',[['Місяць','Кількість'],...months.map(([ym,label,v])=>[`<span class="open-link" data-kind="month" data-value="${escAttr(ym)}">${label}</span>`,`<span class="num">${v}</span>`])]);
+let cats=sortObj(group(no,COLS.reason)); let totalNo=no.length||1; table('catTable',[['Категорія','Кількість','Частка від неповернених'],...cats.map(([k,v])=>[`<span class="open-link" data-kind="reason" data-value="${escAttr(k)}">${k}</span>`,`<span class="num">${v}</span>`,`<div class="pctWrap"><span class="pctText">${(v*100/totalNo).toFixed(1).replace('.',',')}%</span><span class="pctTrack"><span class="pctFill" style="width:${Math.max(3,(v*100/totalNo).toFixed(1))}%"></span></span></div>`])]);
+let refWeekDate=getWeekReferenceDate(); let ws=weekStart(refWeekDate), we=addDays(ws,6), ps=addDays(ws,-7), pe=addDays(ws,-1); let now=byDateRange(no,ws,we), prev=byDateRange(no,ps,pe);
+function weekTable(id, title, a, s,e, cls){let g=sortObj(group(a,COLS.reason)); table(id,[[`Період:`,`${fmt(s)} - ${fmt(e)}`],['Категорія','Кількість'],...g.map(x=>[`<span class="open-link" data-kind="reason" data-value="${escAttr(x[0])}" data-scope="${id==='weekNow'?'now':'prev'}">${x[0]}</span>`,`<span class="num">${x[1]}</span>`]),['<b>Всього</b>',`<b class="${cls}">${a.length}</b>`]])} weekTable('weekNow','',now,ws,we,'greenText'); weekTable('weekPrev','',prev,ps,pe,'orangeText');
+table('unitWeekNow',[['Підрозділ','Не повернулися'],...sortObj(group(now,COLS.unit)).map(x=>[`<span class="open-link" data-kind="unit" data-value="${escAttr(x[0])}" data-scope="now">${x[0]}</span>`,`<span class="num">${x[1]}</span>`])]); table('unitWeekPrev',[['Підрозділ','Не повернулися'],...sortObj(group(prev,COLS.unit)).map(x=>[`<span class="open-link" data-kind="unit" data-value="${escAttr(x[0])}" data-scope="prev">${x[0]}</span>`,`<span class="num">${x[1]}</span>`])]);
+let reasons=[...new Set(no.map(r=>norm(r[COLS.reason])||'Інше'))]; let u=[...new Set(no.map(r=>norm(r[COLS.unit])||'Інше/не визначено'))].sort((a,b)=>a.localeCompare(b,'uk')); let head=['Підрозділ / категорія',...reasons,'Разом']; let body=u.map(unit=>{let row=[`<span class="open-link" data-kind="unit" data-value="${escAttr(unit)}">${unit}</span>`], t=0; reasons.forEach(re=>{let n=no.filter(r=>(norm(r[COLS.unit])||'Інше/не визначено')===unit&&(norm(r[COLS.reason])||'Інше')===re).length; t+=n; row.push(`<span class="open-link matrixLink" data-kind="unitReason" data-value="${escAttr(unit+'|||'+re)}">${n}</span>`)}); row.push(`<b><span class="open-link matrixLink" data-kind="unit" data-value="${escAttr(unit)}">${t}</span></b>`); return row}); let totals=['<span class="open-link" data-kind="allNo" data-value="no">Разом</span>']; reasons.forEach(re=>totals.push(`<b><span class="open-link matrixLink" data-kind="reason" data-value="${escAttr(re)}">${no.filter(r=>(norm(r[COLS.reason])||'Інше')===re).length}</span></b>`)); totals.push(`<b><span class="open-link matrixLink" data-kind="allNo" data-value="no">${no.length}</span></b>`); table('matrixTable',[head,...body,totals]);
+renderKPI(data,no,ret,now,prev); renderWeekdayDashboard(no); renderHeatmap(no); renderCharts(cats, now, prev); applyChartTheme(); renderDetails(data);}
+
+function pct(a,b){return b?Math.round((a-b)*100/b): (a?100:0)}
+function topEntry(arr,key){let g=sortObj(group(arr,key)); return g[0]||['—',0]}
+function renderKPI(data,no,ret,now,prev){
+  const total=data.length||0, noCnt=no.length||0, retPct=total?Math.round(ret*100/total):0;
+  const delta=now.length-prev.length, deltaPct=pct(now.length,prev.length);
+  const topU=topEntry(no,COLS.unit), topR=topEntry(no,COLS.reason);
+  const risk = noCnt>=50?'Критичний':noCnt>=20?'Підвищений':'Контрольований';
+  const trendClass=delta>0?'trendUp':delta<0?'trendDown':'trendFlat';
+  const trendIcon=delta>0?'▲':delta<0?'▼':'—';
+  document.getElementById('kpiCards').innerHTML=`
+    <div class="kpiCard ${noCnt>=50?'bad':noCnt>=20?'warn':'good'} open-link" data-kind="allNo" data-value="no" title="Натисніть, щоб відкрити всіх неповернених"><div class="kpiLabel">Не повернулися</div><div class="kpiValue">${noCnt}</div><div class="kpiSub">з ${total} загалом</div></div>
+    <div class="kpiCard good open-link" data-kind="returned" data-value="yes" title="Натисніть, щоб відкрити повернених"><div class="kpiLabel">Повернулися</div><div class="kpiValue">${ret}</div><div class="kpiSub">${retPct}% від загальної кількості</div></div>
+    <div class="kpiCard ${delta>0?'bad':delta<0?'good':'warn'} open-link" data-kind="allNo" data-value="no" data-scope="now" title="Натисніть, щоб відкрити поточний тиждень"><div class="kpiLabel">Динаміка тижня</div><div class="kpiValue"><span class="${trendClass}">${trendIcon} ${Math.abs(delta)}</span></div><div class="kpiSub">${deltaPct>0?'+':''}${deltaPct}% до попереднього тижня</div></div>
+    <div class="kpiCard warn open-link" data-kind="unit" data-value="${escAttr(topU[0])}" title="Натисніть, щоб відкрити підрозділ"><div class="kpiLabel">Проблемний підрозділ</div><div class="kpiValue" style="font-size:20px">${escHtml(topU[0])}</div><div class="kpiSub">${topU[1]} випадків</div></div>
+    <div class="kpiCard ${risk==='Критичний'?'bad':risk==='Підвищений'?'warn':'good'} open-link" data-kind="reason" data-value="${escAttr(topR[0])}" title="Натисніть, щоб відкрити головну причину"><div class="kpiLabel">Рівень ризику</div><div class="kpiValue" style="font-size:21px">${risk}</div><div class="kpiSub">Причина №1: ${escHtml(topR[0])} (${topR[1]})</div></div>`;
+  wireClicks(document.getElementById('kpiCards'));
+}
+function renderInsights(data,no,now,prev){
+  const box=document.getElementById('insightBox');
+  if(!box) return;
+}
+
+function renderWeekdayDashboard(no){
+  const dayNames=['Неділя','Понеділок','Вівторок','Середа','Четвер','Пʼятниця','Субота'];
+  const order=[1,2,3,4,5,6,0];
+  const rows=no.filter(r=>r._date);
+  const counts={}; dayNames.forEach(d=>counts[d]=0);
+  rows.forEach(r=>{ counts[dayNames[r._date.getDay()]]=(counts[dayNames[r._date.getDay()]]||0)+1; });
+  const sorted=order.map(i=>[dayNames[i],counts[dayNames[i]]||0]);
+  const max=Math.max(0,...sorted.map(x=>x[1]));
+  const leaders=sorted.filter(x=>x[1]===max && max>0).map(x=>x[0]);
+  const total=rows.length;
+  const maxSafe=Math.max(1,max);
+  const tableRows=sorted.map(([day,c])=>{
+    const pct=total?((c*100/total).toFixed(0)+'%'):'0%';
+    const w=Math.round(c*100/maxSafe);
+    const mark=c===max && c>0?' 🔴':'';
+    return [`<span class="open-link" data-kind="weekday" data-value="${escAttr(day)}">${day}${mark}</span>`,`<b>${c}</b>`,pct,`<div class="barcell"><span style="width:${w}%"></span></div>`];
+  });
+  table('weekdayDashTable',[['День','К-сть','%',''],...tableRows]);
+}
+
+function renderHeatmap(no){
+  const [s,e]=getSelectedFilterRange();
+  let dates=no.map(r=>r._date).filter(Boolean).sort((a,b)=>a-b);
+  let start=s||dates[0], end=e||dates[dates.length-1];
+  const box=document.getElementById('heatmapGrid'); if(!start||!end){box.innerHTML='';return;}
+  let counts={}; no.forEach(r=>{if(r._date){let k=iso(r._date); counts[k]=(counts[k]||0)+1;}});
+  let max=Math.max(1,...Object.values(counts)); let html=''; let d=new Date(start); d.setHours(0,0,0,0); let last=new Date(end); last.setHours(0,0,0,0);
+  let guard=0;
+  while(d<=last && guard<370){let k=iso(d), c=counts[k]||0; let level=c===0?0:Math.min(5,Math.ceil(c/max*5)); html+=`<div class="heatDay heat${level}" title="${fmt(d)}: ${c}" onclick="openDayModal('${k}')"><div class="heatDate">${fmt(d).slice(0,5)}</div><div class="heatCount">${c}</div></div>`; d=addDays(d,1); guard++;}
+  box.innerHTML=html;
+}
+
+function resetModalBodyToTable(){
+  const mb=document.querySelector('.modalBody');
+  if(!mb) return;
+  if(!mb.querySelector('#modalTable') || mb.querySelector('#forecastContent')){
+    mb.innerHTML='<table id="modalTable"></table>';
+  }
+  const mt=document.getElementById('modalTable');
+  if(mt) mt.style.display='table';
+}
+
+function openDayModal(k){
+  resetModalBodyToTable();
+  let d=parseDate(k); let rows=applyFilters().filter(isNo).filter(r=>r._date && iso(r._date)===k); modalRows=rows; modalContext={kind:'day', value:fmt(d), scope:'day'};
+  document.getElementById('modalTitle').textContent=`День: ${fmt(d)}`;
+  document.getElementById('modalMeta').textContent=`Знайдено: ${rows.length} осіб | Період: ${fmt(d)}`;
+  document.getElementById('aiPanel').classList.remove('open'); document.getElementById('aiPanel').innerHTML='';
+  resetModalBody();
+  resetModalBody();
+  const tableRows=rows.map((r,i)=>[i+1,fmt(r._date),escHtml(r[COLS.unit]),escHtml(r[COLS.rank]),escHtml(r[COLS.name]),escHtml(r[COLS.reason]),escHtml(r[COLS.place]),escHtml(r[COLS.pos]),escHtml(r[COLS.info])]);
+  table('modalTable',[['№','Дата','Підрозділ','Звання','ПІБ','Причина','Місце вибуття','Посада','Додаткова інформація'],...tableRows]);
+  document.getElementById('detailModal').classList.add('open');
+}
+function toggleAIInsights(){
+  const panel=document.getElementById('aiPanel');
+  if(panel.classList.contains('open')){panel.classList.remove('open');return;}
+  const rows=modalRows||[]; const topU=topEntry(rows,COLS.unit), topR=topEntry(rows,COLS.reason), topPlace=topEntry(rows,COLS.place);
+  const dates=rows.map(r=>r._date).filter(Boolean).sort((a,b)=>a-b); const first=dates[0], last=dates[dates.length-1];
+  const longInfo=rows.filter(r=>String(r[COLS.info]||'').length>80).length;
+  panel.innerHTML=`<h3>AI-висновки по відкритій деталізації</h3><ul>
+    <li>Всього у вибірці: <b>${rows.length}</b>.</li>
+    <li>Найчастіший підрозділ: <b>${escHtml(topU[0])}</b> — ${topU[1]}.</li>
+    <li>Найчастіша причина: <b>${escHtml(topR[0])}</b> — ${topR[1]}.</li>
+    <li>Основне місце вибуття: <b>${escHtml(topPlace[0])}</b> — ${topPlace[1]}.</li>
+    <li>Діапазон дат у вибірці: <b>${first?fmt(first):'—'} — ${last?fmt(last):'—'}</b>.</li>
+    <li>Записів з розширеним описом: <b>${longInfo}</b>. Рекомендовано перевірити їх першочергово.</li>
+  </ul>`;
+  panel.classList.add('open'); panel.classList.add('pulse'); setTimeout(()=>panel.classList.remove('pulse'),900);
+}
+
+function renderCharts(cats,now,prev){
+charts.forEach(c=>c.destroy()); charts=[]; const colors=['#06488b','#1f77b4','#2ca02c','#ff7f0e','#e66a2c','#2e73b8','#8a6bb1','#555'];
+charts.push(new Chart(document.getElementById('pie'),{type:'doughnut',data:{labels:cats.map(x=>x[0]),datasets:[{data:cats.map(x=>x[1]),backgroundColor:colors}]},options:{maintainAspectRatio:false,onClick:(evt,els,chart)=>{if(els.length){let i=els[0].index; openDetailModal('reason', chart.data.labels[i], 'all');}},plugins:{legend:{position:'right',labels:{boxWidth:12,font:{size:12}}},tooltip:{callbacks:{afterLabel:()=> 'Натисніть для деталізації по людях'}},datalabels:{color:'#fff',font:{weight:'bold'},formatter:(v,ctx)=>{let s=ctx.chart.data.datasets[0].data.reduce((a,b)=>a+b,0);return s?(v*100/s).toFixed(1).replace('.',',')+'%':''}}}}}));
+let labels=[...new Set([...now.map(r=>norm(r[COLS.reason])),...prev.map(r=>norm(r[COLS.reason]))])].filter(Boolean);
+charts.push(new Chart(document.getElementById('bar'),{type:'bar',data:{labels,datasets:[{label:'Поточний тиждень',data:labels.map(l=>now.filter(r=>norm(r[COLS.reason])===l).length),backgroundColor:'#249235'},{label:'Попередній тиждень',data:labels.map(l=>prev.filter(r=>norm(r[COLS.reason])===l).length),backgroundColor:'#ff7b00'}]},options:{indexAxis:'y',maintainAspectRatio:false,onClick:(evt,els,chart)=>{if(els.length){let e=els[0]; openDetailModal('reason', chart.data.labels[e.index], e.datasetIndex===0?'now':'prev');}},plugins:{legend:{position:'top'},tooltip:{callbacks:{afterLabel:()=> 'Натисніть для деталізації по людях'}},datalabels:{anchor:'end',align:'right',color:'#111',font:{weight:'bold'}}},scales:{x:{beginAtZero:true,ticks:{precision:0}}}}}));}
+function getSelectedFilterRange(){
+  let from=parseDate(document.getElementById('dateFrom').value);
+  let to=parseDate(document.getElementById('dateTo').value);
+  if(to) to.setHours(23,59,59,999);
+  const filteredDates=applyFilters().map(r=>r._date).filter(Boolean).sort((a,b)=>a-b);
+  if(!from && filteredDates.length) from=filteredDates[0];
+  if(!to && filteredDates.length){ to=new Date(filteredDates[filteredDates.length-1]); to.setHours(23,59,59,999); }
+  return [from,to];
+}
+function periodText(s,e){
+  if(!s && !e) return 'період не визначено';
+  return `${s?fmt(s):'—'} - ${e?fmt(e):'—'}`;
+}
+function getScopeRange(scope){
+  const ref=getWeekReferenceDate();
+  let ws=weekStart(ref), we=addDays(ws,6), ps=addDays(ws,-7), pe=addDays(ws,-1);
+  if(scope==='now') return [ws,we,'поточний тиждень'];
+  if(scope==='prev') return [ps,pe,'попередній тиждень'];
+  const [fs,fe]=getSelectedFilterRange();
+  return [fs,fe,'обраний період'];
+}
+function openDetailModal(kind,value,scope='all'){
+  resetModalBodyToTable();
+  const [s,e,scopeName]=getScopeRange(scope); let base=applyFilters();
+  if(scope!=='all' && (s||e)) base=byDateRange(base,s,e);
+  let rows=base.filter(r=>{
+    if(kind==='allData') return true;
+    if(kind==='returned') return !isNo(r);
+    if(kind!=='allData' && kind!=='returned' && !isNo(r)) return false;
+    if(kind==='allNo') return true;
+    if(kind==='unit') return (norm(r[COLS.unit])||'Інше/не визначено')===value;
+    if(kind==='unitReason'){
+      const parts=String(value).split('|||');
+      return (norm(r[COLS.unit])||'Інше/не визначено')===parts[0] && (norm(r[COLS.reason])||'Інше')===parts.slice(1).join('|||');
+    }
+    if(kind==='month'){
+      if(!r._date) return false;
+      const ym=`${r._date.getFullYear()}-${String(r._date.getMonth()+1).padStart(2,'0')}`;
+      return ym===value;
+    }
+    if(kind==='weekday'){
+      const dayNames=['Неділя','Понеділок','Вівторок','Середа','Четвер','Пʼятниця','Субота'];
+      return r._date && dayNames[r._date.getDay()]===value;
+    }
+    return (norm(r[COLS.reason])||'Інше')===value;
+  });
+  modalRows=rows;
+  let displayValue = kind==='month' ? monthNameFromKey(value) : value;
+  if(kind==='unitReason') displayValue=String(value).replace('|||',' / ');
+  if(kind==='allNo') displayValue='Всі неповернені';
+  if(kind==='returned') displayValue='Всі повернені';
+  if(kind==='allData') displayValue='Усі записи';
+  const label=kind==='unit'?'Підрозділ':(kind==='weekday'?'День тижня':(kind==='month'?'Місяць':(kind==='allNo'||kind==='returned'||kind==='allData'?'Список':(kind==='unitReason'?'Підрозділ / причина':'Причина'))));
+  document.getElementById('modalTitle').textContent=`${label}: ${displayValue}`;
+  document.getElementById('modalMeta').textContent=`Знайдено: ${rows.length} осіб | Період: ${scopeName} (${periodText(s,e)})`;
+  modalContext={kind,value:displayValue,rawValue:value,scope,scopeName,start:s,end:e};
+  document.getElementById('aiPanel').classList.remove('open'); document.getElementById('aiPanel').innerHTML='';
+  const tableRows=rows.map((r,i)=>[i+1,fmt(r._date),escHtml(r[COLS.unit]),escHtml(r[COLS.rank]),escHtml(r[COLS.name]),escHtml(r[COLS.reason]),escHtml(r[COLS.place]),escHtml(r[COLS.pos]),escHtml(r[COLS.info])]);
+  table('modalTable',[['№','Дата','Підрозділ','Звання','ПІБ','Причина','Місце вибуття','Посада','Додаткова інформація'],...tableRows]);
+  document.getElementById('detailModal').classList.add('open');
+}
+
+function openWeekdayAnalysis(){
+  resetModalBodyToTable();
+  const dayNames=['Неділя','Понеділок','Вівторок','Середа','Четвер','Пʼятниця','Субота'];
+  const order=[1,2,3,4,5,6,0];
+  const rows=applyFilters().filter(isNo).filter(r=>r._date);
+  const counts={}; dayNames.forEach(d=>counts[d]=0);
+  rows.forEach(r=>{ counts[dayNames[r._date.getDay()]]=(counts[dayNames[r._date.getDay()]]||0)+1; });
+  const total=rows.length;
+  const sorted=order.map(i=>[dayNames[i],counts[dayNames[i]]||0]);
+  const max=Math.max(0,...sorted.map(x=>x[1]));
+  const leaders=sorted.filter(x=>x[1]===max && max>0).map(x=>x[0]);
+  const [s,e]=getSelectedFilterRange();
+  modalRows=rows;
+  modalContext={kind:'weekday', value:'Дні тижня', scope:'all', start:s, end:e};
+  document.getElementById('modalTitle').textContent='Аналітика по днях тижня';
+  document.getElementById('modalMeta').textContent=`Період: ${periodText(s,e)} | Всього неповернених: ${total} | Найбільше: ${leaders.length?leaders.join(', '):'—'}${max?` — ${max}`:''}`;
+  const maxSafe=Math.max(1,max);
+  const tableRows=sorted.map(([day,c])=>{
+    const pct=total?((c*100/total).toFixed(1).replace('.',',')+'%'):'0%';
+    const w=Math.round(c*100/maxSafe);
+    const mark=c===max && c>0?' 🔴':'';
+    return [`<b>${day}${mark}</b>`, `<b>${c}</b>`, pct, `<div class="barcell"><span style="width:${w}%"></span></div>`];
+  });
+  resetModalBody();
+  table('modalTable',[['День тижня','Кількість СЗЧ','Частка','Графік'],...tableRows]);
+  const panel=document.getElementById('aiPanel');
+  panel.innerHTML=`<h3>Висновок</h3><ul>
+    <li>Найбільше випадків СЗЧ за обраний період: <b>${leaders.length?leaders.join(', '):'—'}</b>${max?` — ${max}`:''}.</li>
+    <li>Усього неповернених у вибірці: <b>${total}</b>.</li>
+    <li>Для перевірки деталей натисни на потрібний підрозділ або причину в основних таблицях.</li>
+  </ul>`;
+  panel.classList.add('open');
+  document.getElementById('detailModal').classList.add('open');
+}
+
+
+function daysBetweenInclusive(a,b){
+  if(!a||!b) return 1;
+  const x=new Date(a); x.setHours(0,0,0,0);
+  const y=new Date(b); y.setHours(0,0,0,0);
+  return Math.max(1, Math.floor((y-x)/86400000)+1);
+}
+function countDaysByWeekday(start,end){
+  const counts=[0,0,0,0,0,0,0];
+  if(!start||!end) return counts;
+  let d=new Date(start); d.setHours(0,0,0,0);
+  let e=new Date(end); e.setHours(0,0,0,0);
+  let guard=0;
+  while(d<=e && guard<370){ counts[d.getDay()]++; d=addDays(d,1); guard++; }
+  return counts;
+}
+function riskClass(p){ return p>=70?'riskHigh':p>=40?'riskMid':'riskLow'; }
+function riskLabel(p){ return p>=70?'Високий':p>=40?'Середній':'Низький'; }
+function openForecastModal(){
+  const rows=applyFilters().filter(isNo).filter(r=>r._date);
+  if(!rows.length){ alert('Немає даних для прогнозу'); return; }
+  const [s,e]=getSelectedFilterRange();
+  const end=e||rows.map(r=>r._date).sort((a,b)=>a-b).at(-1)||new Date();
+  const start=s||rows.map(r=>r._date).sort((a,b)=>a-b)[0]||end;
+  const dayNames=['Неділя','Понеділок','Вівторок','Середа','Четвер','Пʼятниця','Субота'];
+  const totalDays=daysBetweenInclusive(start,end);
+  const overallAvg=rows.length/Math.max(1,totalDays);
+  const last7Start=addDays(end,-6), last14Start=addDays(end,-13), last30Start=addDays(end,-29);
+  const c7=byDateRange(rows,last7Start,end).length, c14=byDateRange(rows,last14Start,end).length, c30=byDateRange(rows,last30Start,end).length;
+  const avg7=c7/7, avg14=c14/14, avg30=c30/30;
+  const wOcc=countDaysByWeekday(start,end);
+  const wCnt=[0,0,0,0,0,0,0]; rows.forEach(r=>wCnt[r._date.getDay()]++);
+  const wAvg=wCnt.map((c,i)=>c/Math.max(1,wOcc[i]));
+  const maxDaily=Math.max(1,...Object.values(group(rows,r=>iso(r._date))));
+  const trend=(avg7-avg14);
+  const forecast=[];
+  for(let i=1;i<=7;i++){
+    const d=addDays(end,i); const wd=d.getDay();
+    let pred=(avg7*0.42)+(avg14*0.23)+(avg30*0.15)+(overallAvg*0.10)+(wAvg[wd]*0.10);
+    if(trend>0) pred*=1.08; if(trend<0) pred*=0.94;
+    pred=Math.max(0,pred);
+    const min=Math.max(0,Math.floor(pred*0.65));
+    const max=Math.max(min,Math.ceil(pred*1.45));
+    const prob=Math.min(95,Math.round((1-Math.exp(-pred))*100));
+    forecast.push({date:d,day:dayNames[wd],pred,min,max,prob});
+  }
+  const avgProb=Math.round(forecast.reduce((a,b)=>a+b.prob,0)/forecast.length);
+  const peak=forecast.slice().sort((a,b)=>b.prob-a.prob || b.pred-a.pred)[0];
+  const expected=forecast.reduce((a,b)=>a+b.pred,0);
+  const topUnit=topEntry(rows,COLS.unit), topReason=topEntry(rows,COLS.reason);
+  const unitRows=sortObj(group(rows,COLS.unit)).slice(0,7).map(([u,c])=>{
+    const share=rows.length?c/rows.length:0;
+    const recent=byDateRange(rows.filter(r=>(norm(r[COLS.unit])||'Інше/не визначено')===u),last14Start,end).length;
+    const score=Math.min(95,Math.round((share*65)+(recent/Math.max(1,c14)*35)));
+    return [escHtml(u),`<b>${c}</b>`,`${Math.round(share*100)}%`,`<span class="riskPill ${riskClass(score)}">${riskLabel(score)} ${score}%</span>`];
+  });
+  modalRows=rows;
+  modalContext={kind:'forecast',value:'Прогноз СЗЧ',scope:'all',start:s,end:e};
+  document.getElementById('modalTitle').textContent='Прогноз ймовірності СЗЧ';
+  document.getElementById('modalMeta').textContent=`Період аналізу: ${periodText(start,end)} | Основа прогнозу: ${rows.length} неповернених записів`;
+  document.getElementById('aiPanel').classList.remove('open'); document.getElementById('aiPanel').innerHTML='';
+  const rowsHtml=forecast.map(f=>{
+    const range=f.min===f.max?String(f.max):`${f.min}–${f.max}`;
+    return [fmt(f.date),f.day,`<b>${range}</b>`,`<span class="riskPill ${riskClass(f.prob)}">${f.prob}% — ${riskLabel(f.prob)}</span>`,`<div class="barcell"><span style="width:${f.prob}%"></span></div>`];
+  });
+  const header=`<div class="forecastGrid">
+    <div class="forecastCard ${riskClass(avgProb).replace('risk','').toLowerCase()==='high'?'bad':avgProb>=40?'warn':'good'}"><div class="label">Загальний ризик 7 днів</div><div class="value">${avgProb}%</div><div>Оцінка: ${riskLabel(avgProb)}</div></div>
+    <div class="forecastCard"><div class="label">Очікувано за 7 днів</div><div class="value">${expected.toFixed(1).replace('.',',')}</div><div>орієнтовна кількість випадків</div></div>
+    <div class="forecastCard bad"><div class="label">Піковий день</div><div class="value" style="font-size:21px">${fmt(peak.date)}</div><div>${peak.day}, ризик ${peak.prob}%</div></div>
+    <div class="forecastCard warn"><div class="label">Головний фактор</div><div class="value" style="font-size:20px">${escHtml(topUnit[0])}</div><div>${topUnit[1]} випадків; причина №1: ${escHtml(topReason[0])}</div></div>
+  </div>
+  <div class="forecastNote">⚠️ Це орієнтовний прогноз за поточною статистикою, а не гарантований результат. Він допомагає визначити дні та підрозділи для посиленого контролю.</div>`;
+  document.querySelector('.modalBody').innerHTML = '<div id="forecastContent">' + header +
+    '<div class="forecastTableWrap"><table><tr><th>Дата</th><th>День</th><th>Прогноз випадків</th><th>Ймовірність</th><th>Індикатор</th></tr>' + rowsHtml.map(r=>'<tr>'+r.map(c=>`<td>${c}</td>`).join('')+'</tr>').join('') + '</table></div>' +
+    '<div class="cap" style="margin-top:10px;border-radius:6px">Ризик по підрозділах</div><div class="forecastTableWrap"><table><tr><th>Підрозділ</th><th>Випадків</th><th>Частка</th><th>Ризик</th></tr>' + unitRows.map(r=>'<tr>'+r.map(c=>`<td>${c}</td>`).join('')+'</tr>').join('') + '</table></div>' +
+    '</div><table id="modalTable" style="display:none"></table>';
+  const panel=document.getElementById('aiPanel');
+  panel.innerHTML=`<h3>Висновок прогнозу</h3><ul>
+    <li>Найвища ймовірність очікується: <b>${fmt(peak.date)} (${peak.day})</b> — ${peak.prob}%.</li>
+    <li>Орієнтовно за 7 днів може бути: <b>${expected.toFixed(1).replace('.',',')}</b> випадків.</li>
+    <li>Найбільший вклад у ризик формує підрозділ: <b>${escHtml(topUnit[0])}</b>.</li>
+    <li>Основна причина у вибірці: <b>${escHtml(topReason[0])}</b>.</li>
+  </ul>`;
+  panel.classList.add('open');
+  document.getElementById('detailModal').classList.add('open');
+}
+
+
+function monthNameFromKey(ym){
+  const m=String(ym||'').match(/^(\d{4})-(\d{2})$/);
+  if(!m) return ym||'—';
+  const d=new Date(+m[1],+m[2]-1,1);
+  return d.toLocaleDateString('uk-UA',{month:'long',year:'numeric'});
+}
+function modalRowsAsText(){
+  const title=document.getElementById('modalTitle')?.textContent||'Деталізація';
+  const meta=document.getElementById('modalMeta')?.textContent||'';
+  if(modalRows && modalRows.length){
+    const header=['№','Дата','Підрозділ','Звання','ПІБ','Причина','Місце вибуття','Посада','Додаткова інформація'];
+    const rows=modalRows.map((r,i)=>[i+1,fmt(r._date),r[COLS.unit],r[COLS.rank],r[COLS.name],r[COLS.reason],r[COLS.place],r[COLS.pos],r[COLS.info]]);
+    return [title,meta,'',header.join('\t'),...rows.map(row=>row.map(v=>String(v??'').replace(/[\r\n]+/g,' ')).join('\t'))].join('\n');
+  }
+  const tbl=document.getElementById('modalTable');
+  if(tbl){
+    const rows=[...tbl.querySelectorAll('tr')].map(tr=>[...tr.children].map(td=>td.innerText.trim().replace(/[\r\n]+/g,' ')).join('\t'));
+    return [title,meta,'',...rows].join('\n');
+  }
+  return title+'\n'+meta;
+}
+async function copyTextToClipboard(txt){
+  try{ await navigator.clipboard.writeText(txt); return true; }
+  catch(e){
+    const ta=document.createElement('textarea'); ta.value=txt; ta.style.position='fixed'; ta.style.left='-9999px'; document.body.appendChild(ta); ta.focus(); ta.select();
+    let ok=false; try{ ok=document.execCommand('copy'); }catch(err){} document.body.removeChild(ta); return ok;
+  }
+}
+async function copyModalList(){
+  const ok=await copyTextToClipboard(modalRowsAsText());
+  const btn=[...document.querySelectorAll('.modalTools button')].find(b=>b.textContent.includes('Копіювати'));
+  if(btn){ const old=btn.textContent; btn.textContent=ok?'Скопійовано ✓':'Не скопійовано'; setTimeout(()=>btn.textContent=old,1300); }
+}
+
+function closeDetailModal(){document.getElementById('detailModal').classList.remove('open'); setTimeout(resetModalBodyToTable,120)}
+function exportModalCSV(){
+  if(!modalRows.length){alert('Немає рядків для експорту');return;}
+
+  // Робимо саме XLSX, а не CSV: так Excel відкриває файл акуратно,
+  // з нормальними ширинами колонок і широкою колонкою "Додаткова інформація".
+  const header=['Дата','Підрозділ','Звання','ПІБ','Причина','Місце вибуття','Посада','Додаткова інформація'];
+  const rows=modalRows.map(r=>[
+    fmt(r._date),
+    r[COLS.unit] || '',
+    r[COLS.rank] || '',
+    r[COLS.name] || '',
+    r[COLS.reason] || '',
+    r[COLS.place] || '',
+    r[COLS.pos] || '',
+    String(r[COLS.info] || '').replace(/\s+/g,' ').trim()
+  ]);
+
+  const aoa=[header,...rows];
+  const ws=XLSX.utils.aoa_to_sheet(aoa);
+
+  ws['!cols']=[
+    {wch:12},  // A Дата
+    {wch:16},  // B Підрозділ
+    {wch:16},  // C Звання
+    {wch:28},  // D ПІБ
+    {wch:24},  // E Причина
+    {wch:22},  // F Місце вибуття
+    {wch:28},  // G Посада
+    {wch:95}   // H Додаткова інформація
+  ];
+  ws['!rows']=[{hpt:24}, ...rows.map(()=>({hpt:62}))];
+  ws['!autofilter']={ref:XLSX.utils.encode_range({s:{r:0,c:0},e:{r:aoa.length-1,c:header.length-1}})};
+  ws['!freeze']={xSplit:0,ySplit:1};
+
+  const range=XLSX.utils.decode_range(ws['!ref']);
+  for(let R=range.s.r; R<=range.e.r; ++R){
+    for(let C=range.s.c; C<=range.e.c; ++C){
+      const addr=XLSX.utils.encode_cell({r:R,c:C});
+      if(!ws[addr]) continue;
+      ws[addr].s={
+        alignment:{vertical:'top',wrapText:true},
+        font:R===0?{bold:true,color:{rgb:'FFFFFF'}}:{},
+        fill:R===0?{fgColor:{rgb:'0B4F8F'}}:undefined
+      };
+    }
+  }
+
+  const wb=XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb,ws,'Деталізація_СЗЧ');
+  XLSX.writeFile(wb,'Деталізація_СЗЧ.xlsx');
+}
+function renderDetails(data){let rows=data.slice(0,500).map(r=>[fmt(r._date),r[COLS.unit],r[COLS.rank],r[COLS.name],r[COLS.returned],r[COLS.reason],r[COLS.place],r[COLS.info]]); table('detailTable',[['Дата','Підрозділ','Звання','ПІБ','Повернувся','Причина','Місце вибуття','Додаткова інформація'],...rows]); document.getElementById('rowsInfo').textContent=`Показано ${Math.min(500,data.length)} з ${data.length} рядків.`}
+function loadWorkbook(buf){let wb=XLSX.read(buf,{type:'array',cellDates:false}); let name=wb.SheetNames.find(s=>s.trim().toLowerCase()==='деталізація')||wb.SheetNames[0]; let rows=XLSX.utils.sheet_to_json(wb.Sheets[name],{defval:'',raw:true}); raw=rows.map(r=>({...r,_date:parseDate(r[COLS.date])})).filter(r=>r[COLS.name]||r[COLS.unit]||r[COLS.reason]); fillSelect('unitFilter',raw.map(r=>r[COLS.unit])); fillSelect('reasonFilter',raw.map(r=>r[COLS.reason])); let ds=raw.map(r=>r._date).filter(Boolean).sort((a,b)=>a-b); if(ds.length){dateFrom.value=iso(ds[0]); dateTo.value=iso(todayLocal());} render();}
+file.onchange=e=>{let f=e.target.files[0]; if(!f)return; let fr=new FileReader(); fr.onload=()=>loadWorkbook(fr.result); fr.readAsArrayBuffer(f)}; 
+['dateFrom','dateTo'].forEach(id=>{const el=document.getElementById(id); el.addEventListener('input',()=>{render(); updateHeaderPeriod();}); el.addEventListener('change',()=>{render(); updateHeaderPeriod();});});
+['unitFilter','reasonFilter','search'].forEach(id=>document.getElementById(id).addEventListener('input',render));
+// Страховка: якщо браузер змінив поле дати без події, шапка все одно синхронізується.
+setInterval(updateHeaderPeriod, 300);
+function resetFilters(){dateFrom.value='';dateTo.value='';unitFilter.value='';reasonFilter.value='';search.value='';render(); updateHeaderPeriod();}
+
+function toggleHeatmap(){
+  const off=document.body.classList.toggle('heatmapOff');
+  const btn=document.getElementById('heatmapToggleBtn');
+  if(btn) btn.textContent=off?'Показати Heatmap':'Сховати Heatmap';
+}
+function printA4Report(){document.body.classList.add('compactA4'); setTimeout(()=>{window.print(); setTimeout(()=>document.body.classList.remove('compactA4'),500);},150)}
+
+async function withExportLayout(callback){
+  const y=window.scrollY;
+  document.body.classList.add('exportMode');
+  document.body.classList.remove('compactA4');
+  window.scrollTo(0,0);
+  await new Promise(r=>setTimeout(r,250));
+  try{return await callback();}
+  finally{document.body.classList.remove('exportMode'); window.scrollTo(0,y);}
+}
+
+async function exportPNG(){
+  await withExportLayout(async()=>{
+    const dash=document.getElementById('dash');
+    const canvas=await html2canvas(dash,{
+      scale:4,
+      backgroundColor:'#ffffff',
+      useCORS:true,
+      allowTaint:true,
+      logging:false,
+      scrollX:0,
+      scrollY:0,
+      x:0,
+      y:0,
+      windowWidth:1700,
+      windowHeight:dash.scrollHeight+120,
+      onclone:(doc)=>{
+        doc.body.classList.add('exportMode');
+        doc.querySelectorAll('*').forEach(el=>{
+          el.style.animation='none'; el.style.transition='none'; el.style.opacity='1'; el.style.filter='none';
+        });
+      }
+    });
+    const a=document.createElement('a');
+    a.download='Аналітика_СЗЧ_ЧІТКА.png';
+    a.href=canvas.toDataURL('image/png',1.0);
+    a.click();
+  });
+}
+
+async function exportPDF(){
+  await withExportLayout(async()=>{
+    const dash=document.getElementById('dash');
+    const canvas=await html2canvas(dash,{
+      scale:4,
+      backgroundColor:'#ffffff',
+      useCORS:true,
+      allowTaint:true,
+      logging:false,
+      scrollX:0,
+      scrollY:0,
+      x:0,
+      y:0,
+      windowWidth:1700,
+      windowHeight:dash.scrollHeight+120,
+      onclone:(doc)=>{
+        doc.body.classList.add('exportMode');
+        doc.querySelectorAll('*').forEach(el=>{
+          el.style.animation='none'; el.style.transition='none'; el.style.opacity='1'; el.style.filter='none';
+        });
+      }
+    });
+    const img=canvas.toDataURL('image/png');
+    const {jsPDF}=window.jspdf;
+    const pdf=new jsPDF({orientation:'landscape',unit:'mm',format:'a4',compress:true});
+    const pageW=297, pageH=210;
+    const margin=4;
+    const imgW=pageW-margin*2;
+    const imgH=canvas.height*imgW/canvas.width;
+    if(imgH<=pageH-margin*2){
+      pdf.addImage(img,'PNG',margin,margin,imgW,imgH,undefined,'NONE');
+    }else{
+      const pageCanvas=document.createElement('canvas');
+      const ctx=pageCanvas.getContext('2d');
+      const sliceH=Math.floor(canvas.width*(pageH-margin*2)/imgW);
+      pageCanvas.width=canvas.width;
+      pageCanvas.height=sliceH;
+      let y=0,page=0;
+      while(y<canvas.height){
+        ctx.fillStyle='#fff';ctx.fillRect(0,0,pageCanvas.width,pageCanvas.height);
+        ctx.drawImage(canvas,0,y,canvas.width,sliceH,0,0,canvas.width,sliceH);
+        const slice=pageCanvas.toDataURL('image/png');
+        if(page>0) pdf.addPage('a4','landscape');
+        pdf.addImage(slice,'PNG',margin,margin,imgW,pageH-margin*2,undefined,'NONE');
+        y+=sliceH; page++;
+      }
+    }
+    pdf.save('Аналітика_СЗЧ_ЧІТКА.pdf');
+  });
+}
+function downloadHTML(){let a=document.createElement('a'); a.download='szch_analytics_dashboard.html'; a.href=URL.createObjectURL(new Blob([document.documentElement.outerHTML],{type:'text/html'})); a.click();}
+
+/* ===== v27 THEME JS ===== */
+function applyChartTheme(){
+  const dark=document.body.classList.contains('darkTheme');
+  const text=dark?'#ffffff':'#111111';
+  const grid=dark?'rgba(255,255,255,.18)':'rgba(0,0,0,.10)';
+  if(window.Chart){Chart.defaults.color=text; Chart.defaults.borderColor=grid;}
+  if(Array.isArray(charts)){
+    charts.forEach(ch=>{
+      if(!ch || !ch.options) return;
+      if(ch.options.plugins){
+        if(ch.options.plugins.legend && ch.options.plugins.legend.labels){ch.options.plugins.legend.labels.color=text;}
+        if(ch.options.plugins.datalabels){ch.options.plugins.datalabels.color=text;}
+      }
+      if(ch.options.scales){
+        Object.values(ch.options.scales).forEach(sc=>{
+          if(!sc) return;
+          sc.ticks=sc.ticks||{}; sc.ticks.color=text;
+          sc.grid=sc.grid||{}; sc.grid.color=grid;
+        });
+      }
+      ch.update('none');
+    });
+  }
+}
+function setTheme(mode){
+  const dark=mode==='dark';
+  document.body.classList.toggle('darkTheme', dark);
+  localStorage.setItem('szchTheme', dark?'dark':'light');
+  const btn=document.getElementById('themeToggleBtn');
+  if(btn) btn.textContent=dark?'☀️ Світла тема':'🌙 Темна тема';
+  applyChartTheme();
+}
+function toggleTheme(){setTheme(document.body.classList.contains('darkTheme')?'light':'dark');}
+document.addEventListener('DOMContentLoaded',()=>{setTheme(localStorage.getItem('szchTheme')==='dark'?'dark':'light');});
+
+</script>
+</body></html>
