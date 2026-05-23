@@ -244,6 +244,13 @@ body.darkTheme .clickable:hover td{background:#174e82!important;}
 .matrixLink:hover{text-decoration:underline;}
 body.darkTheme .matrixLink{color:#ffffff!important;}
 
+
+/* ===== v36: пошук по ПІБ ===== */
+.pibSearchInput{min-width:260px!important;border:2px solid #0b5da7!important;background:#ffffff!important;font-weight:700;}
+.pibSearchBtn{background:#0b5da7!important;color:#ffffff!important;border:1px solid #084a86!important;}
+mark.pibMark{background:#fff176;color:#000;padding:1px 3px;border-radius:3px;font-weight:900;}
+body.darkTheme mark.pibMark{background:#ffd54f;color:#000;}
+
 </style>
 </head><body>
 <div class="topbar">
@@ -270,6 +277,8 @@ body.darkTheme .matrixLink{color:#ffffff!important;}
     <label>По <input type="date" id="dateTo"></label>
     <label>Підрозділ <select id="unitFilter"><option value="">Всі</option></select></label>
     <label>Причина <select id="reasonFilter"><option value="">Всі</option></select></label>
+    <input type="search" id="pibSearch" class="pibSearchInput" placeholder="Пошук по ПІБ...">
+    <button type="button" class="pibSearchBtn" onclick="openPibSearchModal()">Знайти ПІБ</button>
     <input type="search" id="search" placeholder="Пошук по деталізації..." style="min-width:260px">
     <button onclick="resetFilters()">Скинути</button>
   </div>
@@ -427,7 +436,18 @@ function wireClicks(root){
   });
 }
 function fillSelect(id, values){let el=document.getElementById(id), cur=el.value; el.innerHTML='<option value="">Всі</option>'+[...new Set(values.filter(Boolean))].sort((a,b)=>a.localeCompare(b,'uk')).map(v=>`<option>${v}</option>`).join(''); el.value=cur}
-function applyFilters(){let from=parseDate(document.getElementById('dateFrom').value), to=parseDate(document.getElementById('dateTo').value); if(to) to.setHours(23,59,59,999); let unit=document.getElementById('unitFilter').value, reason=document.getElementById('reasonFilter').value, q=norm(document.getElementById('search').value).toLowerCase(); return raw.filter(r=>(!from||r._date>=from)&&(!to||r._date<=to)&&(!unit||r[COLS.unit]===unit)&&(!reason||r[COLS.reason]===reason)&&(!q||JSON.stringify(r).toLowerCase().includes(q)));}
+function applyFilters(){
+  let from=parseDate(document.getElementById('dateFrom').value), to=parseDate(document.getElementById('dateTo').value);
+  if(to) to.setHours(23,59,59,999);
+  let unit=document.getElementById('unitFilter').value,
+      reason=document.getElementById('reasonFilter').value,
+      pib=norm(document.getElementById('pibSearch')?.value).toLowerCase(),
+      q=norm(document.getElementById('search').value).toLowerCase();
+  return raw.filter(r=>{
+    const name=norm(r[COLS.name]).toLowerCase();
+    return (!from||r._date>=from)&&(!to||r._date<=to)&&(!unit||r[COLS.unit]===unit)&&(!reason||r[COLS.reason]===reason)&&(!pib||name.includes(pib))&&(!q||JSON.stringify(r).toLowerCase().includes(q));
+  });
+}
 function render(){let data=applyFilters(); document.getElementById('empty').style.display='none'; document.getElementById('content').style.display='grid'; if(!data.length){document.getElementById('periodLabel').textContent='Немає даних за фільтрами'; return}
 let dates=data.map(r=>r._date).filter(Boolean).sort((a,b)=>a-b), min=dates[0], max=dates[dates.length-1];
 let fFrom=parseDate(document.getElementById('dateFrom').value), fTo=parseDate(document.getElementById('dateTo').value);
@@ -614,6 +634,48 @@ function openDetailModal(kind,value,scope='all'){
   document.getElementById('aiPanel').classList.remove('open'); document.getElementById('aiPanel').innerHTML='';
   const tableRows=rows.map((r,i)=>[i+1,fmt(r._date),escHtml(r[COLS.unit]),escHtml(r[COLS.rank]),escHtml(r[COLS.name]),escHtml(r[COLS.reason]),escHtml(r[COLS.place]),escHtml(r[COLS.pos]),escHtml(r[COLS.info])]);
   table('modalTable',[['№','Дата','Підрозділ','Звання','ПІБ','Причина','Місце вибуття','Посада','Додаткова інформація'],...tableRows]);
+  document.getElementById('detailModal').classList.add('open');
+}
+
+
+function highlightPibName(name){
+  const term=norm(document.getElementById('pibSearch')?.value);
+  const safe=escHtml(name);
+  if(!term) return safe;
+  try{
+    const re=new RegExp('('+term.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+')','ig');
+    return safe.replace(re,'<mark class="pibMark">$1</mark>');
+  }catch(e){return safe;}
+}
+
+function openPibSearchModal(){
+  resetModalBodyToTable();
+  const term=norm(document.getElementById('pibSearch')?.value).toLowerCase();
+  if(!term){
+    alert('Введіть ПІБ або частину ПІБ');
+    return;
+  }
+  const [s,e]=getSelectedFilterRange();
+  let rows=applyFilters().filter(r=>norm(r[COLS.name]).toLowerCase().includes(term));
+  modalRows=rows;
+  modalContext={kind:'pibSearch', value:term, scope:'all', start:s, end:e};
+  document.getElementById('modalTitle').textContent='Пошук по ПІБ: ' + document.getElementById('pibSearch').value;
+  document.getElementById('modalMeta').textContent=`Знайдено: ${rows.length} осіб | Період: ${periodText(s,e)}`;
+  document.getElementById('aiPanel').classList.remove('open');
+  document.getElementById('aiPanel').innerHTML='';
+  const tableRows=rows.map((r,i)=>[
+    i+1,
+    fmt(r._date),
+    escHtml(r[COLS.unit]),
+    escHtml(r[COLS.rank]),
+    highlightPibName(r[COLS.name]),
+    escHtml(r[COLS.returned]),
+    escHtml(r[COLS.reason]),
+    escHtml(r[COLS.place]),
+    escHtml(r[COLS.pos]),
+    escHtml(r[COLS.info])
+  ]);
+  table('modalTable',[['№','Дата','Підрозділ','Звання','ПІБ','Повернувся','Причина','Місце вибуття','Посада','Додаткова інформація'],...tableRows]);
   document.getElementById('detailModal').classList.add('open');
 }
 
@@ -826,7 +888,7 @@ function exportModalCSV(){
   XLSX.utils.book_append_sheet(wb,ws,'Деталізація_СЗЧ');
   XLSX.writeFile(wb,'Деталізація_СЗЧ.xlsx');
 }
-function renderDetails(data){let rows=data.slice(0,500).map(r=>[fmt(r._date),r[COLS.unit],r[COLS.rank],r[COLS.name],r[COLS.returned],r[COLS.reason],r[COLS.place],r[COLS.info]]); table('detailTable',[['Дата','Підрозділ','Звання','ПІБ','Повернувся','Причина','Місце вибуття','Додаткова інформація'],...rows]); document.getElementById('rowsInfo').textContent=`Показано ${Math.min(500,data.length)} з ${data.length} рядків.`}
+function renderDetails(data){let rows=data.slice(0,500).map(r=>[fmt(r._date),r[COLS.unit],r[COLS.rank],highlightPibName(r[COLS.name]),r[COLS.returned],r[COLS.reason],r[COLS.place],r[COLS.info]]); table('detailTable',[['Дата','Підрозділ','Звання','ПІБ','Повернувся','Причина','Місце вибуття','Додаткова інформація'],...rows]); document.getElementById('rowsInfo').textContent=`Показано ${Math.min(500,data.length)} з ${data.length} рядків.`}
 function normalizeCloudDate(v){
   if(!v) return null;
   if(v instanceof Date) return parseDate(v);
@@ -865,10 +927,10 @@ file.onchange=e=>{
   fr.readAsArrayBuffer(f)
 }; 
 ['dateFrom','dateTo'].forEach(id=>{const el=document.getElementById(id); el.addEventListener('input',()=>{render(); updateHeaderPeriod();}); el.addEventListener('change',()=>{render(); updateHeaderPeriod();});});
-['unitFilter','reasonFilter','search'].forEach(id=>document.getElementById(id).addEventListener('input',render));
+['unitFilter','reasonFilter','pibSearch','search'].forEach(id=>{const el=document.getElementById(id); if(el) el.addEventListener('input',render);});
 // Страховка: якщо браузер змінив поле дати без події, шапка все одно синхронізується.
 setInterval(updateHeaderPeriod, 300);
-function resetFilters(){dateFrom.value='';dateTo.value='';unitFilter.value='';reasonFilter.value='';search.value='';render(); updateHeaderPeriod();}
+function resetFilters(){dateFrom.value='';dateTo.value='';unitFilter.value='';reasonFilter.value='';if(document.getElementById('pibSearch'))pibSearch.value='';search.value='';render(); updateHeaderPeriod();}
 
 function toggleHeatmap(){
   const off=document.body.classList.toggle('heatmapOff');
