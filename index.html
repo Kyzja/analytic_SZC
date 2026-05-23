@@ -412,6 +412,7 @@ function updateHeaderPeriod(){
 function norm(s){return String(s??'').trim()} function isNo(r){return norm(r[COLS.returned]).toLowerCase()!=='так'}
 function group(arr,key){let o={}; arr.forEach(r=>{let k=typeof key==='function'?key(r):norm(r[key])||'Інше/не визначено'; o[k]=(o[k]||0)+1}); return o}
 function sortObj(o){return Object.entries(o).sort((a,b)=>b[1]-a[1]||a[0].localeCompare(b[0],'uk'))}
+function sortNewestFirst(arr){return (arr||[]).slice().sort((a,b)=>{let da=a&&a._date?new Date(a._date).getTime():0; let db=b&&b._date?new Date(b._date).getTime():0; if(db!==da) return db-da; return String(b?.[COLS.name]||'').localeCompare(String(a?.[COLS.name]||''),'uk');});}
 function sum(o){return Object.values(o).reduce((a,b)=>a+b,0)}
 function byDateRange(arr,from,to){return arr.filter(r=>{let d=r._date; return d&&(!from||d>=from)&&(!to||d<=to)})}
 function weekStart(d){let x=new Date(d); let day=(x.getDay()+6)%7; x.setDate(x.getDate()-day); x.setHours(0,0,0,0); return x} function addDays(d,n){let x=new Date(d); x.setDate(x.getDate()+n); return x}
@@ -543,7 +544,7 @@ function resetModalBodyToTable(){
 
 function openDayModal(k){
   resetModalBodyToTable();
-  let d=parseDate(k); let rows=applyFilters().filter(isNo).filter(r=>r._date && iso(r._date)===k); modalRows=rows; modalContext={kind:'day', value:fmt(d), scope:'day'};
+  let d=parseDate(k); let rows=sortNewestFirst(applyFilters().filter(isNo).filter(r=>r._date && iso(r._date)===k)); modalRows=rows; modalContext={kind:'day', value:fmt(d), scope:'day'};
   document.getElementById('modalTitle').textContent=`День: ${fmt(d)}`;
   document.getElementById('modalMeta').textContent=`Знайдено: ${rows.length} осіб | Період: ${fmt(d)}`;
   document.getElementById('aiPanel').classList.remove('open'); document.getElementById('aiPanel').innerHTML='';
@@ -621,6 +622,7 @@ function openDetailModal(kind,value,scope='all'){
     }
     return (norm(r[COLS.reason])||'Інше')===value;
   });
+  rows=sortNewestFirst(rows);
   modalRows=rows;
   let displayValue = kind==='month' ? monthNameFromKey(value) : value;
   if(kind==='unitReason') displayValue=String(value).replace('|||',' / ');
@@ -656,7 +658,7 @@ function openPibSearchModal(){
     return;
   }
   const [s,e]=getSelectedFilterRange();
-  let rows=applyFilters().filter(r=>norm(r[COLS.name]).toLowerCase().includes(term));
+  let rows=sortNewestFirst(applyFilters().filter(r=>norm(r[COLS.name]).toLowerCase().includes(term)));
   modalRows=rows;
   modalContext={kind:'pibSearch', value:term, scope:'all', start:s, end:e};
   document.getElementById('modalTitle').textContent='Пошук по ПІБ: ' + document.getElementById('pibSearch').value;
@@ -830,14 +832,14 @@ async function copyTextToClipboard(txt){
     let ok=false; try{ ok=document.execCommand('copy'); }catch(err){} document.body.removeChild(ta); return ok;
   }
 }
-async function copyModalList(){
+async function copyModalList(){ modalRows=sortNewestFirst(modalRows);
   const ok=await copyTextToClipboard(modalRowsAsText());
   const btn=[...document.querySelectorAll('.modalTools button')].find(b=>b.textContent.includes('Копіювати'));
   if(btn){ const old=btn.textContent; btn.textContent=ok?'Скопійовано ✓':'Не скопійовано'; setTimeout(()=>btn.textContent=old,1300); }
 }
 
 function closeDetailModal(){document.getElementById('detailModal').classList.remove('open'); setTimeout(resetModalBodyToTable,120)}
-function exportModalCSV(){
+function exportModalCSV(){ modalRows=sortNewestFirst(modalRows);
   if(!modalRows.length){alert('Немає рядків для експорту');return;}
 
   // Робимо саме XLSX, а не CSV: так Excel відкриває файл акуратно,
@@ -888,7 +890,7 @@ function exportModalCSV(){
   XLSX.utils.book_append_sheet(wb,ws,'Деталізація_СЗЧ');
   XLSX.writeFile(wb,'Деталізація_СЗЧ.xlsx');
 }
-function renderDetails(data){let rows=data.slice(0,500).map(r=>[fmt(r._date),r[COLS.unit],r[COLS.rank],highlightPibName(r[COLS.name]),r[COLS.returned],r[COLS.reason],r[COLS.place],r[COLS.info]]); table('detailTable',[['Дата','Підрозділ','Звання','ПІБ','Повернувся','Причина','Місце вибуття','Додаткова інформація'],...rows]); document.getElementById('rowsInfo').textContent=`Показано ${Math.min(500,data.length)} з ${data.length} рядків.`}
+function renderDetails(data){let rows=sortNewestFirst(data).slice(0,500).map(r=>[fmt(r._date),r[COLS.unit],r[COLS.rank],highlightPibName(r[COLS.name]),r[COLS.returned],r[COLS.reason],r[COLS.place],r[COLS.info]]); table('detailTable',[['Дата','Підрозділ','Звання','ПІБ','Повернувся','Причина','Місце вибуття','Додаткова інформація'],...rows]); document.getElementById('rowsInfo').textContent=`Показано ${Math.min(500,data.length)} з ${data.length} рядків.`}
 function normalizeCloudDate(v){
   if(!v) return null;
   if(v instanceof Date) return parseDate(v);
