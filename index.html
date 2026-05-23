@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Актуальна аналітика СЗЧ v29 MONTH COPY</title>
+<title>Актуальна аналітика СЗЧ</title>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
@@ -996,14 +996,21 @@ const db = getFirestore(app);
 
 window.saveToFirebase = async function () {
   try {
-    if (!window.raw || !window.raw.length) {
-      alert("Спочатку імпортуйте Excel файл");
+    const dataToSave =
+      window.filteredData ||
+      window.currentData ||
+      window.rawData ||
+      window.raw ||
+      [];
+
+    if (!dataToSave.length) {
+      alert("Немає даних для збереження");
       return;
     }
 
     await addDoc(collection(db, "szc_data"), {
       created: new Date().toISOString(),
-      data: window.raw
+      data: dataToSave
     });
 
     alert("✅ Дані успішно збережено у Firebase");
@@ -1041,6 +1048,9 @@ window.loadFromFirebase = async function () {
     }
 
     window.raw = latest.data;
+    window.filteredData = latest.data;
+    window.currentData = latest.data;
+    window.rawData = latest.data;
 
     if (typeof render === "function") {
       render();
