@@ -572,23 +572,31 @@ let months=Object.entries(monthMap).sort((a,b)=>a[0].localeCompare(b[0])).map(([
 table('monthTable',[['Місяць','Кількість'],...months.map(([ym,label,v])=>[`<span class="open-link" data-kind="month" data-value="${escAttr(ym)}">${label}</span>`,`<span class="num">${v}</span>`])]);
 let cats=sortObj(group(no,COLS.reason)); let totalNo=no.length||1; table('catTable',[['Категорія','Кількість','Частка від неповернених'],...cats.map(([k,v])=>[`<span class="open-link" data-kind="reason" data-value="${escAttr(k)}">${k}</span>`,`<span class="num">${v}</span>`,`<div class="pctWrap"><span class="pctText">${(v*100/totalNo).toFixed(1).replace('.',',')}%</span><span class="pctTrack"><span class="pctFill" style="width:${Math.max(3,(v*100/totalNo).toFixed(1))}%"></span></span></div>`])]);
 let refWeekDate=getWeekReferenceDate(); let ws=weekStart(refWeekDate), we=addDays(ws,6), ps=addDays(ws,-7), pe=addDays(ws,-1); let now=byDateRange(no,ws,we), prev=byDateRange(no,ps,pe);
+
 function weekTable(id, title, a, s, e, cls){
-  let g=sortObj(group(a,COLS.reason));
-  const scope = id==='weekNow' ? 'now' : 'prev';
+  let g = sortObj(group(a, COLS.reason));
+  const scope = (id === 'weekNow') ? 'now' : 'prev';
+
   const rows = [
-    [`Період:`,`${fmt(s)} - ${fmt(e)}`],
-    ['Категорія','Кількість'],
-    ...g.map(x=>[
-      `<span class="open-link" data-kind="reason" data-value="${escAttr(x[0])}" data-scope="${scope}">${x[0]}</span>`,
-      `<span class="num open-link" data-kind="reason" data-value="${escAttr(x[0])}" data-scope="${scope}">${x[1]}</span>`
-    ]),
-    [
-      `<b><span class="open-link" data-kind="allNo" data-value="no" data-scope="${scope}">Всього</span></b>`,
-      `<b class="${cls}"><span class="open-link" data-kind="allNo" data-value="no" data-scope="${scope}">${a.length}</span></b>`
-    ]
+    ['Період:', `${fmt(s)} - ${fmt(e)}`],
+    ['Категорія', 'Кількість']
   ];
+
+  g.forEach(x=>{
+    rows.push([
+      '<span class="open-link" data-kind="reason" data-value="'+escAttr(x[0])+'" data-scope="'+scope+'">'+x[0]+'</span>',
+      '<span class="num open-link" data-kind="reason" data-value="'+escAttr(x[0])+'" data-scope="'+scope+'">'+x[1]+'</span>'
+    ]);
+  });
+
+  rows.push([
+    '<b><span class="open-link" data-kind="allNo" data-value="no" data-scope="'+scope+'">Всього</span></b>',
+    '<b class="'+cls+'"><span class="open-link" data-kind="allNo" data-value="no" data-scope="'+scope+'">'+a.length+'</span></b>'
+  ]);
+
   table(id, rows);
 }
+
 weekTable('weekNow','',now,ws,we,'greenText'); weekTable('weekPrev','',prev,ps,pe,'orangeText');
 table('unitWeekNow',[['Підрозділ','Не повернулися'],...sortObj(group(now,COLS.unit)).map(x=>[`<span class="open-link" data-kind="unit" data-value="${escAttr(x[0])}" data-scope="now">${x[0]}</span>`,`<span class="num">${x[1]}</span>`])]); table('unitWeekPrev',[['Підрозділ','Не повернулися'],...sortObj(group(prev,COLS.unit)).map(x=>[`<span class="open-link" data-kind="unit" data-value="${escAttr(x[0])}" data-scope="prev">${x[0]}</span>`,`<span class="num">${x[1]}</span>`])]);
 let reasons=[...new Set(no.map(r=>norm(r[COLS.reason])||'Інше'))]; let u=[...new Set(no.map(r=>norm(r[COLS.unit])||'Інше/не визначено'))].sort((a,b)=>a.localeCompare(b,'uk')); let head=['Підрозділ / категорія',...reasons,'Разом']; let body=u.map(unit=>{let row=[`<span class="open-link" data-kind="unit" data-value="${escAttr(unit)}">${unit}</span>`], t=0; reasons.forEach(re=>{let n=no.filter(r=>(norm(r[COLS.unit])||'Інше/не визначено')===unit&&(norm(r[COLS.reason])||'Інше')===re).length; t+=n; row.push(`<span class="open-link matrixLink" data-kind="unitReason" data-value="${escAttr(unit+'|||'+re)}">${n}</span>`)}); row.push(`<b><span class="open-link matrixLink" data-kind="unit" data-value="${escAttr(unit)}">${t}</span></b>`); return row}); let totals=['<span class="open-link" data-kind="allNo" data-value="no">Разом</span>']; reasons.forEach(re=>totals.push(`<b><span class="open-link matrixLink" data-kind="reason" data-value="${escAttr(re)}">${no.filter(r=>(norm(r[COLS.reason])||'Інше')===re).length}</span></b>`)); totals.push(`<b><span class="open-link matrixLink" data-kind="allNo" data-value="no">${no.length}</span></b>`); table('matrixTable',[head,...body,totals]);
@@ -1057,6 +1065,27 @@ function toggleHeatmap(){
 }
 
 
+
+async function withExportLayout(fn){
+  const body=document.body;
+  const oldScrollX=window.scrollX;
+  const oldScrollY=window.scrollY;
+  try{
+    body.classList.add('exportMode');
+    window.scrollTo(0,0);
+    // Даємо браузеру перемалювати сторінку перед зняттям скріну.
+    await new Promise(resolve=>setTimeout(resolve,180));
+    return await fn();
+  }catch(e){
+    console.error(e);
+    alert('Помилка експорту: ' + (e.message || e));
+  }finally{
+    body.classList.remove('exportMode');
+    window.scrollTo(oldScrollX,oldScrollY);
+  }
+}
+
+
 async function exportPNG(){
   await withExportLayout(async()=>{
     const dash=document.getElementById('dash');
@@ -1176,6 +1205,18 @@ document.addEventListener('DOMContentLoaded',()=>{setTheme(localStorage.getItem(
 </script>
 
 
+
+<script>
+
+window.exportPNG = exportPNG;
+window.exportPDF = exportPDF;
+window.toggleTheme = toggleTheme;
+window.toggleHeatmap = toggleHeatmap;
+window.openWeekdayAnalysis = openWeekdayAnalysis;
+window.openForecastModal = openForecastModal;
+window.downloadHTML = downloadHTML;
+
+</script>
 <!-- FIREBASE CLOUD SAVE -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
